@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:to_do_list/widgets/dialog.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:to_do_list/view/widgets/dialog.dart';
 
 final _auth = FirebaseAuth.instance;
 void registerUser(String phoneNumber, BuildContext context) async {
@@ -9,10 +10,8 @@ void registerUser(String phoneNumber, BuildContext context) async {
       //[verificationCompleted] Triggered when an SMS is
       // auto-retrieved or the phone number has been instantly verified.
       verificationCompleted: (phoneAuthCredential) async {
-        print('verified phone');
         final userCredential =
             await _auth.signInWithCredential(phoneAuthCredential);
-        print('signed in');
       },
       verificationFailed: (error) {
         showError(ctx: context, msg: error.code);
@@ -21,8 +20,28 @@ void registerUser(String phoneNumber, BuildContext context) async {
       codeSent: (verificationId, forceResendingToken) {
         showOtpDialog(ctx: context, vId: verificationId);
       },
-      codeAutoRetrievalTimeout: (verificationId) {
-        print('timeout for auto code retreival');
-      },
-      timeout: Duration(seconds: 120));
+      timeout: const Duration(seconds: 10),
+      codeAutoRetrievalTimeout: (verificationId) {});
+}
+
+Future<String?> verifyOtp({
+  required String smsCode,
+  required WidgetRef ref,
+  required String vId,
+}) async {
+  FirebaseAuth auth = FirebaseAuth.instance;
+
+  final credential = PhoneAuthProvider.credential(
+    verificationId: vId,
+    smsCode: smsCode,
+  );
+  try {
+    await auth.signInWithCredential(credential);
+    return null;
+  } on FirebaseAuthException catch (e) {
+    // AuthExceptionMapper.map(e.code);
+    return e.code;
+  } catch (e) {
+    return 'unknown error occured !';
+  }
 }

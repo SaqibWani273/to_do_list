@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:to_do_list/view_model/auth_provider.dart';
 import 'package:to_do_list/view_model/country_provider.dart';
 import 'dart:developer' as dev;
 
@@ -36,6 +35,7 @@ class ShowCountryCode extends ConsumerWidget {
             showPhoneCode: true,
             onSelect: (Country newCountry) {
               ref.read(countryProvider.notifier).changeCountry = newCountry;
+
               print('Select country: ${country.displayName}');
             },
           ),

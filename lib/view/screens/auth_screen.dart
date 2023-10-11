@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/model/device_data.dart';
 import 'package:to_do_list/utility/auth.dart';
 import 'package:to_do_list/view_model/auth_provider.dart';
+import 'package:to_do_list/view_model/country_provider.dart';
 
 import '../widgets/show_country_code.dart';
 
@@ -16,12 +17,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   late DeviceData deviceData;
-  bool isNewUser = true;
-  void toggleUser(bool val) {
-    setState(() {
-      isNewUser = !val;
-    });
-  }
 
   @override
   void dispose() {
@@ -35,6 +30,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     deviceData = DeviceData(context: context);
     deviceData.setAllFields();
     final authVariablesMap = ref.watch(authProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Authentication'),
@@ -65,12 +61,20 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     child: TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null ||
+                            value.trim().length != 10 ||
+                            int.tryParse(value) == null) {
+                          return 'enter valid 10-digit number';
+                        }
+                        return null;
+                      },
                       decoration: const InputDecoration(
                         labelText: 'Phone number',
                         prefixIcon: ShowCountryCode(),
 
                         border: OutlineInputBorder(),
-                        hintText: 'Enter your phone number',
+                        hintText: 'Enter 10-digit phone number',
                         alignLabelWithHint: false,
                         // errorText: 'Please enter a valid phone number',
                         fillColor: Colors.black,
@@ -85,12 +89,35 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       onPressed: () {
                         if (!authVariablesMap[
                             AuthScreenVariables.isverifying]) {
-                          // registerUser("+919797767375", context);
+                          if (_formKey.currentState != null) {
+                            if (_formKey.currentState!.validate()) {
+                              ref
+                                  .read(authProvider.notifier)
+                                  .toggleIsVerifying();
+                              final countryCode =
+                                  ref.watch(countryProvider).phoneCode;
+                              registerUser(
+                                  "$countryCode${_phoneController.text.trim()}",
+                                  context);
+                            }
+                          }
                         }
                       },
                       child: authVariablesMap[AuthScreenVariables.isverifying]
-                          ? CircularProgressIndicator()
-                          : Text(isNewUser ? 'Register' : 'Login'),
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: Center(
+                                child: CircularProgressIndicator.adaptive(
+                                  strokeWidth: 2.0,
+                                  backgroundColor: Colors.amber,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              authVariablesMap[AuthScreenVariables.isRegistered]
+                                  ? 'Login'
+                                  : 'Register'),
                     ),
                   ),
                   SizedBox(
@@ -101,16 +128,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(isNewUser ? 'Already a user?' : 'New user?'),
+                        Text(authVariablesMap[AuthScreenVariables.isRegistered]
+                            ? 'New user?'
+                            : 'Already a user?'),
                         TextButton(
                             onPressed: () {
-                              toggleUser(isNewUser);
                               ref
                                   .read(authProvider.notifier)
-                                  .toggleIsRegistered(isNewUser);
+                                  .toggleIsRegistered();
                             },
-                            child: Text(
-                                isNewUser ? 'Login here' : 'Register Here'))
+                            child: Text(authVariablesMap[
+                                    AuthScreenVariables.isRegistered]
+                                ? 'Register Here'
+                                : 'Login here'))
                       ],
                     ),
                   )

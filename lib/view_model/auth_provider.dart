@@ -14,9 +14,22 @@ final Map<AuthScreenVariables, dynamic> authMap = {
 
 class AuthNotifier extends StateNotifier<Map<AuthScreenVariables, dynamic>> {
   AuthNotifier() : super(authMap);
-  void toggleIsRegistered(bool val) {
-    state[AuthScreenVariables.isRegistered] = !val;
-    print(state.toString());
+  void toggleIsRegistered() {
+    final Map<AuthScreenVariables, dynamic> newState = {
+      ...state,
+      AuthScreenVariables.isRegistered: !state[AuthScreenVariables.isRegistered]
+    };
+    state = newState;
+  }
+
+  void toggleIsVerifying() {
+    final Map<AuthScreenVariables, dynamic> newState = {
+      ...state,
+      AuthScreenVariables.isverifying: !state[AuthScreenVariables.isverifying],
+    };
+    state = newState;
+
+    //
   }
 }
 
