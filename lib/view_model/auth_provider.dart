@@ -1,23 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AuthScreenVariables {
-  isRegistered,
+  otpSent,
   isverifying,
   phoneNumber,
+  verificationId,
 }
 
 final Map<AuthScreenVariables, dynamic> authMap = {
-  AuthScreenVariables.isRegistered: false,
+  AuthScreenVariables.otpSent: false,
   AuthScreenVariables.isverifying: false,
   AuthScreenVariables.phoneNumber: '',
+  AuthScreenVariables.verificationId: '',
 };
 
 class AuthNotifier extends StateNotifier<Map<AuthScreenVariables, dynamic>> {
   AuthNotifier() : super(authMap);
-  void toggleIsRegistered() {
+  void toggleOtpSent() {
     final Map<AuthScreenVariables, dynamic> newState = {
       ...state,
-      AuthScreenVariables.isRegistered: !state[AuthScreenVariables.isRegistered]
+      AuthScreenVariables.otpSent: !state[AuthScreenVariables.otpSent]
     };
     state = newState;
   }
@@ -26,6 +28,16 @@ class AuthNotifier extends StateNotifier<Map<AuthScreenVariables, dynamic>> {
     final Map<AuthScreenVariables, dynamic> newState = {
       ...state,
       AuthScreenVariables.isverifying: !state[AuthScreenVariables.isverifying],
+    };
+    state = newState;
+
+    //
+  }
+
+  void setVerificationId(String vId) {
+    final Map<AuthScreenVariables, dynamic> newState = {
+      ...state,
+      AuthScreenVariables.verificationId: vId,
     };
     state = newState;
 

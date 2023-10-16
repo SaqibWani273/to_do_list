@@ -1,9 +1,8 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:developer' as dev;
 
 Country initialCountry = Country(
-  phoneCode: '+91',
+  phoneCode: '91',
   countryCode: 'IN',
   e164Sc: 1,
   geographic: false,

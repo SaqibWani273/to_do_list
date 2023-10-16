@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:to_do_list/utility/auth.dart';
 import 'package:to_do_list/view_model/auth_provider.dart';
 
 //error dialog
@@ -30,76 +29,76 @@ class ErrorDialog extends ConsumerWidget {
   }
 }
 
-//otpDialog
-class OtpDialog extends ConsumerStatefulWidget {
-  final String verificationId;
-  const OtpDialog({super.key, required this.verificationId});
+// //otpDialog
+// class OtpDialog extends ConsumerStatefulWidget {
+//   final String verificationId;
+//   const OtpDialog({super.key, required this.verificationId});
 
-  @override
-  ConsumerState<OtpDialog> createState() => _OtpDialogState();
-}
+//   @override
+//   ConsumerState<OtpDialog> createState() => _OtpDialogState();
+// }
 
-class _OtpDialogState extends ConsumerState<OtpDialog> {
-  final _codeController = TextEditingController();
-  @override
-  void dispose() {
-    _codeController.dispose();
-    super.dispose();
-  }
+// class _OtpDialogState extends ConsumerState<OtpDialog> {
+//   final _codeController = TextEditingController();
+//   @override
+//   void dispose() {
+//     _codeController.dispose();
+//     super.dispose();
+//   }
 
-  @override
-  Widget build(BuildContext context1) {
-    return AlertDialog(
-      title: const Text("Enter SMS Code"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          TextField(
-            controller: _codeController,
-          ),
-        ],
-      ),
-      actions: <Widget>[
-        TextButton(
-          child: Container(
-            width: 100,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(
-                  20), // Adjust the radius for rounded corners
-            ),
-            child: const Center(
-              child: Text(
-                "Enter",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20, // Adjust the font size
-                ),
-              ),
-            ),
-          ),
-          onPressed: () async {
-            final errorMsg = await verifyOtp(
-                smsCode: _codeController.text.trim(),
-                ref: ref,
-                vId: widget.verificationId);
-            if (mounted) {
-              Navigator.pop(context1);
-            }
-            if (errorMsg != null) {
-              if (mounted) {
-                showError(ctx: context1, msg: errorMsg);
-              }
-            }
-          },
-        )
-      ],
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context1) {
+//     return AlertDialog(
+//       title: const Text("Enter SMS Code"),
+//       content: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         children: <Widget>[
+//           TextField(
+//             controller: _codeController,
+//           ),
+//         ],
+//       ),
+//       actions: <Widget>[
+//         TextButton(
+//           child: Container(
+//             width: 100,
+//             height: 40,
+//             decoration: BoxDecoration(
+//               color: Colors.blue,
+//               borderRadius: BorderRadius.circular(
+//                   20), // Adjust the radius for rounded corners
+//             ),
+//             child: const Center(
+//               child: Text(
+//                 "Enter",
+//                 style: TextStyle(
+//                   color: Colors.white,
+//                   fontSize: 20, // Adjust the font size
+//                 ),
+//               ),
+//             ),
+//           ),
+//           onPressed: () async {
+//             final errorMsg = await verifyOtp(
+//                 smsCode: _codeController.text.trim(),
+//                 ref: ref,
+//                 vId: widget.verificationId);
+//             if (mounted) {
+//               Navigator.pop(context1);
+//             }
+//             if (errorMsg != null) {
+//               if (mounted) {
+//                 showError(ctx: context1, msg: errorMsg);
+//               }
+//             }
+//           },
+//         )
+//       ],
+//     );
+//   }
+// }
 
-//for showing error if phone verification failed
+//for showing any kind of error with a simple error message
 void showError({required BuildContext ctx, required String msg}) {
   final errorDialog = ErrorDialog(errorMessage: msg);
 
@@ -110,11 +109,13 @@ void showError({required BuildContext ctx, required String msg}) {
   );
 }
 
-//to let user enter otp
-void showOtpDialog({required BuildContext ctx, required String vId}) {
-  showDialog(
-    context: ctx,
-    barrierDismissible: false,
-    builder: (_) => OtpDialog(verificationId: vId),
-  );
-}
+// //to let user enter otp
+// void showOtpDialog({required BuildContext ctx, required String vId}) {
+//   ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+//       content: Text('Remember this 6-digit otp for signing in later !')));
+//   showDialog(
+//     context: ctx,
+//     barrierDismissible: false,
+//     builder: (_) => OtpDialog(verificationId: vId),
+//   );
+// }
