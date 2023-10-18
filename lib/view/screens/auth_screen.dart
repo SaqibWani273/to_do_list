@@ -65,7 +65,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       width: deviceData.width! * 0.8,
                       alignment: Alignment.topCenter,
                       child: Image.asset(
-                        'assets/images/img_for_auth_screen1.png',
+                        'assets/images/img.png',
                         fit: BoxFit.cover,
                       ),
                     ),
