@@ -17,17 +17,21 @@ Future<void> main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  //use sharedprefrence here
+
+//to change top status bar theme settings
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: ColorSchemes.primaryColorScheme.onPrimary,
     statusBarIconBrightness: Brightness.dark,
   ));
+
+  //use sharedprefrence to check whether newuser or not
   bool isNewUser = true;
-  FlutterNativeSplash.remove();
+  // FlutterNativeSplash.remove();
 
   runApp(
     MyApp(isNewUser: isNewUser),
   );
+  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatelessWidget {
@@ -41,7 +45,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: theme,
             home: isNewUser
-                ? const OnBoardScreen2()
+                ? const onBoardScreen1()
                 : StreamBuilder(
                     stream: FirebaseAuth.instance.userChanges(),
                     builder: (context, snapshot) {

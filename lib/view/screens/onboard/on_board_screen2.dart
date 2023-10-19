@@ -43,7 +43,7 @@ class OnBoardScreen2 extends StatelessWidget {
                           child:
                               CustomTextButton(text: 'Skip', onPressed: () {})),
                       CustomImageView(
-                        svgPath: ImageConstants.onBoardImg2,
+                        svgPath: ImageConstant.onBoardImg2,
                         height: mediaQueryData.size.height * 0.3,
                         width: mediaQueryData.size.width * 0.8,
                         alignment: Alignment.centerRight,

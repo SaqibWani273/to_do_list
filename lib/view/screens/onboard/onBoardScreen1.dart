@@ -34,7 +34,7 @@ class onBoardScreen1 extends StatelessWidget {
               ),
               SizedBox(height: 3),
               CustomImageView(
-                svgPath: ImageConstants.onBoardImg1,
+                svgPath: ImageConstant.onBoardImg1,
                 height: mediaQueryData.size.height * 0.3,
                 width: mediaQueryData.size.width * 0.8,
               ),
