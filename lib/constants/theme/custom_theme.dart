@@ -290,7 +290,7 @@ class TextThemes {
           fontWeight: FontWeight.w400,
         ),
         titleMedium: TextStyle(
-          color: appTheme.black900.withOpacity(0.1),
+          color: appTheme.black900.withOpacity(0.77),
           fontSize: 16,
           fontFamily: 'Lato',
           fontWeight: FontWeight.w600,

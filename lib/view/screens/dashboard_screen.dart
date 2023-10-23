@@ -1,13 +1,10 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:to_do_list/constants/bottom_bar_list.dart';
-import 'package:to_do_list/model/bottom_item_model.dart';
+import 'package:to_do_list/view/screens/add_task_screen.dart';
 
 import '../../constants/image_constants.dart';
-import '../../model/bottom_menu_model.dart';
 import '../widgets/app_bar/custom_app_bar.dart';
-import '../widgets/custom_bottom_app_bar.dart';
 import '../widgets/custom_image_view.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -128,7 +125,17 @@ class HomeScreen1 extends StatelessWidget {
                 Icons.add,
                 size: 30,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddTaskScreen(
+                        onSave: (newTask) {
+                          print(newTask.toString());
+                        },
+                      ),
+                    ));
+              },
             ))
       ],
     );
