@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/constants/firebase_files/firebase_options.dart';
 import 'package:to_do_list/constants/theme/custom_theme.dart';
 
-import 'package:to_do_list/view/screens/home_screen.dart';
+import 'package:to_do_list/view/screens/dashboard_screen.dart';
 import 'package:to_do_list/view/screens/onboard/on_board_screen2.dart';
 
 import 'view/screens/auth_screen.dart';
@@ -25,7 +25,7 @@ Future<void> main() async {
   ));
 
   //use sharedprefrence to check whether newuser or not
-  bool isNewUser = true;
+  bool isNewUser = false;
   // FlutterNativeSplash.remove();
 
   runApp(
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
                         );
                       }
                       if (snapshot.hasData) {
-                        return HomeScreen();
+                        return DashboardScreen();
                       }
                       return AuthScreen();
                     },

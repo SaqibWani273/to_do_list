@@ -1,26 +1,26 @@
-enum BottomBarEnum {
-  Index,
-  Calendar,
-  Focuse,
-  Profile,
-}
+// enum BottomBarEnum {
+//   Index,
+//   Calendar,
+//   Focuse,
+//   Profile,
+// }
 
-class BottomMenuModel {
-  BottomMenuModel({
-    required this.icon,
-    required this.activeIcon,
-    this.title,
-    required this.type,
-    this.isSelected = false,
-  });
+// class BottomMenuModel {
+//   BottomMenuModel({
+//     required this.icon,
+//     required this.activeIcon,
+//     this.title,
+//     required this.type,
+//     this.isSelected = false,
+//   });
 
-  String icon;
+//   String icon;
 
-  String activeIcon;
+//   String activeIcon;
 
-  String? title;
+//   String? title;
 
-  BottomBarEnum type;
+//   BottomBarEnum type;
 
-  bool isSelected;
-}
+//   bool isSelected;
+// }
