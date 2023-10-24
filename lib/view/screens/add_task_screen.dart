@@ -125,6 +125,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                       taskDate: _selectedDate,
                       taskPriority: _selectedPriority,
                       taskCategory: _selectedCategory,
+                      isCompleted: false,
                     );
 
                     widget.onSave(newTask);

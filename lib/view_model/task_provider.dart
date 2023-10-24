@@ -1,13 +1,22 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../model/task.dart';
 
 final List<Task> tasksList = [];
+final ref = FirebaseFirestore.instance.collection('tasks');
 
 class TaskNotifier extends StateNotifier<List<Task>> {
   TaskNotifier() : super(tasksList);
   void addNewTask(Task newTask) {
     state = [...state, newTask];
+    log('logged message');
+    final data = newTask.toJson();
+    ref.add(newTask.toMap()).catchError((error, stackTrace) {
+      log('${error.toString()}');
+    });
   }
 
   void editTask(Task task, Task editedTask) {

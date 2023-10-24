@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list/constants/image_constants.dart';
+import 'package:to_do_list/constants/other_constants.dart';
+import 'package:to_do_list/main.dart';
 import 'package:to_do_list/view/screens/onboard/on_board_screen2.dart';
 import 'package:to_do_list/view/widgets/custom_text_button.dart';
 
@@ -12,17 +15,22 @@ class onBoardScreen1 extends StatelessWidget {
       : super(
           key: key,
         );
+  Future<void> setData() async {
+    final sharedPref = await SharedPreferences.getInstance();
+    sharedPref.setBool(isNewUser, false);
+  }
 
   @override
   Widget build(BuildContext context) {
     final mediaQueryData = MediaQuery.of(context);
+    setData();
 
     return SafeArea(
       child: Scaffold(
         body: Container(
           height: mediaQueryData.size.height,
           width: double.maxFinite,
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: 24,
             vertical: 10,
           ),
@@ -30,15 +38,22 @@ class onBoardScreen1 extends StatelessWidget {
             children: [
               Align(
                 alignment: Alignment.centerLeft,
-                child: CustomTextButton(text: "Skip", onPressed: () {}),
+                child: CustomTextButton(
+                  text: "Skip",
+                  onPressed: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MyApp(showOnBoard: false),
+                      )),
+                ),
               ),
-              SizedBox(height: 3),
+              const SizedBox(height: 3),
               CustomImageView(
                 svgPath: ImageConstant.onBoardImg1,
                 height: mediaQueryData.size.height * 0.3,
                 width: mediaQueryData.size.width * 0.8,
               ),
-              SizedBox(height: 51),
+              const SizedBox(height: 51),
               SizedBox(
                 height: 4,
                 child: AnimatedSmoothIndicator(
@@ -53,14 +68,14 @@ class onBoardScreen1 extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 52),
+              const SizedBox(height: 52),
               Text(
                 "Manage Your Tasks",
                 style: theme.textTheme.headlineLarge,
               ),
               Container(
                 width: 265,
-                margin: EdgeInsets.only(
+                margin: const EdgeInsets.only(
                   left: 30,
                   top: 40,
                   right: 30,
@@ -75,13 +90,13 @@ class onBoardScreen1 extends StatelessWidget {
                   ),
                 ),
               ),
-              Spacer(),
-              SizedBox(height: 45),
+              const Spacer(),
+              const SizedBox(height: 45),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                      padding: EdgeInsets.only(
+                      padding: const EdgeInsets.only(
                         top: 14,
                         bottom: 13,
                       ),
@@ -90,10 +105,10 @@ class onBoardScreen1 extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => OnBoardScreen2(),
+                        builder: (context) => const OnBoardScreen2(),
                       ));
                     },
-                    child: Text('Next'),
+                    child: const Text('Next'),
                   ),
                   // CustomElevatedButton(
                   //   width: 90,

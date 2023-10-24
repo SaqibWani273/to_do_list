@@ -17,16 +17,16 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -49,20 +49,20 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBi0b6u2ngTLamfdxYFr5yZTgm-d0vM-4g',
-    appId: '1:974378926671:web:dd0f75abab84f6254ca03a',
-    messagingSenderId: '974378926671',
-    projectId: 'to-do-list-272',
-    authDomain: 'to-do-list-272.firebaseapp.com',
-    storageBucket: 'to-do-list-272.appspot.com',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBdy6mdO4YsuKqj0AsV4BnPfoWRacR0atc',
     appId: '1:974378926671:android:6e0099c136ee87674ca03a',
     messagingSenderId: '974378926671',
     projectId: 'to-do-list-272',
     storageBucket: 'to-do-list-272.appspot.com',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyDfDIwnkiwMP9dB-12L-PxjQ4e03Sg0MJQ',
+    appId: '1:974378926671:ios:a99e812ddadcdba04ca03a',
+    messagingSenderId: '974378926671',
+    projectId: 'to-do-list-272',
+    storageBucket: 'to-do-list-272.appspot.com',
+    iosBundleId: 'com.example.toDoList',
   );
 }

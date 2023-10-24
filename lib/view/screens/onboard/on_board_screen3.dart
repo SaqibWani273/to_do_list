@@ -109,7 +109,9 @@ class OnBoardScreen3 extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pushReplacement(MaterialPageRoute(
-                        builder: (context) => MyApp(isNewUser: false),
+                        builder: (context) => MyApp(
+                          showOnBoard: false,
+                        ),
                       ));
                     },
                     child: Text('Next'),

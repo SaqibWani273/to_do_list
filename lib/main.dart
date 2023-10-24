@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list/constants/firebase_files/firebase_options.dart';
+import 'package:to_do_list/constants/other_constants.dart';
 import 'package:to_do_list/constants/theme/custom_theme.dart';
 
 import 'package:to_do_list/view/screens/dashboard_screen.dart';
@@ -24,18 +26,25 @@ Future<void> main() async {
   ));
 
   //use sharedprefrence to check whether newuser or not
-  bool isNewUser = false;
-  // FlutterNativeSplash.remove();
+  final sharedPref = await SharedPreferences.getInstance();
+  var showOnBoard = true;
+  //if isNewUser is set and is false
+  if (sharedPref.getBool(isNewUser) != null &&
+      !sharedPref.getBool(isNewUser)!) {
+    showOnBoard = false;
+  }
 
   runApp(
-    MyApp(isNewUser: isNewUser),
+    MyApp(
+      showOnBoard: showOnBoard,
+    ),
   );
   FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatelessWidget {
-  final bool isNewUser;
-  const MyApp({super.key, required this.isNewUser});
+  final bool showOnBoard;
+  const MyApp({super.key, required this.showOnBoard});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +52,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: theme,
-            home: isNewUser
+            home: showOnBoard
                 ? const onBoardScreen1()
                 : StreamBuilder(
                     stream: FirebaseAuth.instance.userChanges(),
