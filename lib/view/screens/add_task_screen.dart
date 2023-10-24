@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../../model/task.dart';
 
 class AddTaskScreen extends StatefulWidget {
+  //optional field task will be received when edit task in pressed
+  final Task? task;
   final Function(Task) onSave;
 
-  const AddTaskScreen({super.key, required this.onSave});
+  const AddTaskScreen({super.key, required this.onSave, this.task});
 
   @override
   AddTaskScreenState createState() => AddTaskScreenState();
@@ -20,8 +22,14 @@ class AddTaskScreenState extends State<AddTaskScreen> {
 
   @override
   void initState() {
-    super.initState();
     _taskNameController = TextEditingController();
+    if (widget.task != null) {
+      _selectedDate = widget.task!.taskDate;
+      _selectedCategory = widget.task!.taskCategory;
+      _selectedPriority = widget.task!.taskPriority;
+      _taskNameController.text = widget.task!.taskName;
+    }
+    super.initState();
   }
 
   @override
@@ -69,7 +77,11 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 //splits date and time & then select only date
                 subtitle: Text('${_selectedDate.toLocal()}'.split(' ')[0]),
                 trailing: IconButton(
-                    onPressed: () => _selectDate(context),
+                    onPressed: () {
+                      //remove any active keyboard
+                      FocusScope.of(context).unfocus();
+                      _selectDate(context);
+                    },
                     icon: const Icon(Icons.calendar_month)),
               ),
               //add task time here but only when the date is set

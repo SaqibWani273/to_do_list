@@ -8,8 +8,24 @@ class TaskNotifier extends StateNotifier<List<Task>> {
   TaskNotifier() : super(tasksList);
   void addNewTask(Task newTask) {
     state = [...state, newTask];
-    print(
-        "Called Add new task in task_providr.dart , task= ${newTask.toString()}");
+  }
+
+  void editTask(Task task, Task editedTask) {
+    final taskIndex = state.indexOf(task);
+    state[taskIndex] = editedTask;
+    state = [...state];
+  }
+
+  void deleteTask(Task task) {
+    final taskIndex = state.indexOf(task);
+    state.removeAt(taskIndex);
+    state = [...state];
+  }
+
+  void toggleIsCompleteStatus(Task task) {
+    final taskIndex = state.indexOf(task);
+    state[taskIndex].isCompleted = !state[taskIndex].isCompleted;
+    state = [...state];
   }
 }
 

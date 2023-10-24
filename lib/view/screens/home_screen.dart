@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:to_do_list/constants/edit_task.dart';
 import 'package:to_do_list/constants/image_constants.dart';
+import 'package:to_do_list/utility/update_task.dart';
 import 'package:to_do_list/view/screens/add_task_screen.dart';
 import 'package:to_do_list/view/widgets/custom_image_view.dart';
 import 'package:to_do_list/view_model/task_provider.dart';
@@ -63,32 +65,40 @@ class HomeScreen extends ConsumerWidget {
                             background: Container(
                               color: Colors.red,
                               alignment: Alignment.centerRight,
-                              padding: EdgeInsets.symmetric(horizontal: 20.0),
-                              child: Icon(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: const Icon(
                                 Icons.delete,
                                 color: Colors.white,
                               ),
                             ),
                             onDismissed: (direction) {
-                              // Handle task deletion here
-                              //   tasks.removeAt(index);
+                              ref.read(taskProvider.notifier).deleteTask(task);
                             },
                             child: ListTile(
+                              //show icon conditionally if incomplete or if complete
+                              leading: task.isCompleted
+                                  ? const Icon(Icons.check_circle,
+                                      color: Colors.green)
+                                  : Icon(
+                                      Icons.help,
+                                      color: Colors.blue.withRed(200),
+                                    ),
                               title: Text(task.taskName),
                               subtitle: Column(
                                 children: [
                                   Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Row(
                                           children: [
-                                            Icon(Icons.calendar_today),
+                                            const Icon(Icons.calendar_today),
                                             Text('${task.taskDate.toLocal()}'
                                                 .split(' ')[0]),
                                           ],
                                         ),
-                                        Row(
+                                        const Row(
                                           children: [
                                             Icon(Icons.access_time),
                                             Text('3:00'),
@@ -100,16 +110,16 @@ class HomeScreen extends ConsumerWidget {
                                     children: [
                                       Row(
                                         children: [
-                                          Icon(Icons.category),
+                                          const Icon(Icons.category),
                                           Text(' ${task.taskCategory.name}'),
                                         ],
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       Row(
                                         children: [
-                                          Icon(Icons.low_priority),
+                                          const Icon(Icons.low_priority),
                                           Text('${task.taskPriority.name}')
                                         ],
                                       )
@@ -117,46 +127,24 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              trailing:
-                                  Icon(Icons.check_circle, color: Colors.green),
+                              trailing: PopupMenuButton<TaskEnum>(
+                                  onSelected: (value) => updateTask(
+                                      value: value,
+                                      ref: ref,
+                                      currentTask: task,
+                                      context: context),
+                                  icon: const Icon(Icons.more_vert),
+                                  itemBuilder: (context) =>
+                                      <PopupMenuEntry<TaskEnum>>[
+                                        ...popMenuItemList
+                                            .map((taskEnum) => PopupMenuItem(
+                                                  child:
+                                                      Text('${taskEnum.name}'),
+                                                  value: taskEnum,
+                                                ))
+                                            .toList(),
+                                      ]),
                             ),
-                            //  ListTile(
-                            //   leading: CircleAvatar(
-                            //     child: Text(task.taskName[0]),
-                            //   ),
-                            //   title: Text(
-                            //     task.taskName,
-                            //     style: TextStyle(
-                            //       fontWeight: FontWeight.bold,
-                            //       fontSize: 18,
-                            //     ),
-                            //   ),
-                            //   subtitle: Text(
-                            //     '${task.taskDate} | ${task.taskCategory} | ${task.taskPriority} | time here',
-                            //     style: TextStyle(
-                            //       fontSize: 14,
-                            //       color: Colors.grey,
-                            //     ),
-                            //   ),
-                            //   trailing: IconButton(
-                            //     onPressed: () {},
-                            //     icon: Icon(Icons.more_vert),
-                            //   ),
-                            // )
-                            // ListTile(
-                            //   title: Text(task.taskName),
-                            //   subtitle: Column(
-                            //     crossAxisAlignment: CrossAxisAlignment.start,
-                            //     children: [
-                            //       Text('Date: ${task.taskDate}'),
-                            //       Text('Category: ${task.taskCategory}'),
-                            //       Text('Priority: ${task.taskPriority}'),
-                            //       Text('Time: 3:000'),
-                            //     ],
-                            //   ),
-                            //   trailing:
-                            //       Icon(Icons.check_circle, color: Colors.green),
-                            // ),
                           ),
                         ))
                     .toList(),
@@ -168,7 +156,7 @@ class HomeScreen extends ConsumerWidget {
             width: 65,
             child: FloatingActionButton(
               elevation: 20,
-              child: Icon(
+              child: const Icon(
                 Icons.add,
                 size: 30,
               ),

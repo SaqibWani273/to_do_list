@@ -3,6 +3,7 @@ class Task {
   DateTime taskDate;
   Priority taskPriority;
   Category taskCategory;
+  bool isCompleted = false;
 
   Task({
     required this.taskName,

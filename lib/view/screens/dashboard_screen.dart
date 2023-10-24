@@ -1,11 +1,8 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do_list/constants/bottom_bar_list.dart';
-import 'package:to_do_list/view/screens/add_task_screen.dart';
 
-import '../../constants/image_constants.dart';
 import '../widgets/app_bar/custom_app_bar.dart';
-import '../widgets/custom_image_view.dart';
 import 'home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -41,7 +38,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           body: PageView(
             controller: _pageController,
-            children: [CalendarScreen(), HomeScreen(), FocusScreen()],
+            children: [
+              const CalendarScreen(),
+              const HomeScreen(),
+              const FocusScreen()
+            ],
           ),
           extendBody:
               true, //This property is often useful when the [bottomNavigationBar]
@@ -67,7 +68,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 .toList(),
             onTap: (value) {
               _pageController.animateToPage(value,
-                  duration: Duration(milliseconds: 400), curve: Curves.easeIn);
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeIn);
             },
           )
           //  CustomBottomAppBar(
@@ -84,7 +86,7 @@ class CalendarScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Center(
+      child: const Center(
         child: Text('CAlendar'),
       ),
     );
@@ -97,7 +99,7 @@ class FocusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Center(
+      child: const Center(
         child: Text('Focus'),
       ),
     );
