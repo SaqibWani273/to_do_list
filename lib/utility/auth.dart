@@ -16,8 +16,8 @@ void registerUser(String phoneNumber, BuildContext context,
       verificationCompleted: (phoneAuthCredential) async {
         //to stop showing progress bar in ui
         ref.read(authProvider.notifier).toggleIsVerifying();
-        final userCredential =
-            await _auth.signInWithCredential(phoneAuthCredential);
+
+        await _auth.signInWithCredential(phoneAuthCredential);
       },
       verificationFailed: (error) {
         showError(ctx: context, msg: error.code);

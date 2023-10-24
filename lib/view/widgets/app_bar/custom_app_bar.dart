@@ -4,7 +4,6 @@ import 'dart:ui' as ui;
 import '../../../constants/image_constants.dart';
 import '../../../constants/theme/custom_theme.dart';
 import '../custom_image_view.dart';
-import 'appbar_image_1.dart';
 
 // ignore: must_be_immutable
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

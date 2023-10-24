@@ -6,6 +6,7 @@ import 'package:to_do_list/view/screens/add_task_screen.dart';
 import '../../constants/image_constants.dart';
 import '../widgets/app_bar/custom_app_bar.dart';
 import '../widgets/custom_image_view.dart';
+import 'home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   DashboardScreen({Key? key})
@@ -29,7 +30,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQueryData = MediaQuery.of(context);
+    //final mediaQueryData = MediaQuery.of(context);
 
     return SafeArea(
       child: Scaffold(
@@ -40,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           body: PageView(
             controller: _pageController,
-            children: [CalendarScreen(), HomeScreen1(), FocusScreen()],
+            children: [CalendarScreen(), HomeScreen(), FocusScreen()],
           ),
           extendBody:
               true, //This property is often useful when the [bottomNavigationBar]
@@ -73,71 +74,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           //   onChanged: (BottomBarEnum type) {},
 
           ),
-    );
-  }
-}
-
-class HomeScreen1 extends StatelessWidget {
-  const HomeScreen1({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      //   alignment: Alignment.bottomLeft,
-      children: [
-        Container(
-          width: double.maxFinite,
-          padding: const EdgeInsets.only(
-            left: 52,
-            top: 68,
-            right: 52,
-          ),
-          child: Column(
-            children: [
-              CustomImageView(
-                svgPath: ImageConstant.imgChecklistrafiki,
-                height: MediaQuery.of(context).size.height * 0.2,
-                width: 227,
-              ),
-              const SizedBox(height: 14),
-              Text(
-                "What do you want to do today?",
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 13),
-              Text(
-                "Tap  + to add your tasks",
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 13),
-            ],
-          ),
-          //    floatingActionButtonLocation: FloatingActionButtonLocation,
-        ),
-        Positioned(
-            bottom: 100,
-            right: 20,
-            height: 65,
-            width: 65,
-            child: FloatingActionButton(
-              elevation: 20,
-              child: Icon(
-                Icons.add,
-                size: 30,
-              ),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddTaskScreen(
-                        onSave: (newTask) {
-                          print(newTask.toString());
-                        },
-                      ),
-                    ));
-              },
-            ))
-      ],
     );
   }
 }

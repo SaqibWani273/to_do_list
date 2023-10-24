@@ -8,7 +8,6 @@ import 'package:to_do_list/constants/firebase_files/firebase_options.dart';
 import 'package:to_do_list/constants/theme/custom_theme.dart';
 
 import 'package:to_do_list/view/screens/dashboard_screen.dart';
-import 'package:to_do_list/view/screens/onboard/on_board_screen2.dart';
 
 import 'view/screens/auth_screen.dart';
 import 'view/screens/onboard/onBoardScreen1.dart';
