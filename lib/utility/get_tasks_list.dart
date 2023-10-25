@@ -13,7 +13,13 @@ Future<List<Task>?> getTasksList() async {
     return null;
   }
   final tasksList = docsList.map((e) {
-    return Task.fromMap(e.data());
+    late Task task;
+    try {
+      task = Task.fromMap(e.data());
+    } catch (e) {
+      log("error in task.fromMap = ${e.toString()}");
+    }
+    return task;
   }).toList();
   return tasksList;
 }

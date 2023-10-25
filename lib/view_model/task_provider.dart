@@ -12,8 +12,6 @@ class TaskNotifier extends StateNotifier<List<Task>> {
   TaskNotifier() : super(tasksList);
   void addNewTask(Task newTask) {
     state = [...state, newTask];
-    log('logged message');
-    final data = newTask.toJson();
     ref.add(newTask.toMap()).catchError((error, stackTrace) {
       log('${error.toString()}');
     });
