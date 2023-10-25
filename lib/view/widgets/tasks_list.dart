@@ -28,7 +28,7 @@ class TasksList extends StatelessWidget {
                   .withOpacity(0.15)
                   .withBlue(150),
               child: Dismissible(
-                key: Key(taskList[index].taskName),
+                key: UniqueKey(),
                 background: Container(
                   color: Colors.red,
                   alignment: Alignment.centerRight,
