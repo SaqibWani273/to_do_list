@@ -46,6 +46,8 @@ class TasksList extends StatelessWidget {
                 onDismissed: (direction) {
                   //used this pub package as default snackbar was not showing
                   //due to bottom nav bar and floating action button
+                  // ScaffoldMessenger.of(context)
+                  //     .hideCurrentSnackBar(reason: SnackBarClosedReason.swipe);
                   Flushbar(
                     message: 'Task Deleted !',
                     duration: const Duration(seconds: 3),
@@ -54,7 +56,12 @@ class TasksList extends StatelessWidget {
                     flushbarStyle: FlushbarStyle.FLOATING,
                     mainButton: TextButton(
                       child: const Text('Undo'),
-                      onPressed: () {},
+                      onPressed: () {
+                        //to do : choose better approach later
+                        ref
+                            .read(taskProvider.notifier)
+                            .addNewTask(taskList[index]);
+                      },
                     ),
                     backgroundGradient: LinearGradient(
                       colors: [
@@ -65,6 +72,9 @@ class TasksList extends StatelessWidget {
                   )
                       // Show the Flushbar.
                       .show(context);
+                  ref
+                      .read(taskProvider.notifier)
+                      .deleteTask(taskList[index], context);
                 },
                 child: ListTile(
                   //show icon conditionally if incomplete or if complete

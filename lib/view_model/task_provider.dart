@@ -16,7 +16,6 @@ class TaskNotifier extends StateNotifier<List<Task>> {
   TaskNotifier() : super(tasksList);
 
   Future<List<Task>?> getTasksList() async {
-    log('get tasks future called');
     final data = await fireStoreRef.get();
     final List<QueryDocumentSnapshot<Map<String, dynamic>>> docsList =
         data.docs;
@@ -53,6 +52,17 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     final taskIndex = state.indexOf(task);
     state[taskIndex] = editedTask;
     state = [...state];
+    fireStoreRef
+        .doc(editedTask.taskDate.toString())
+        .set(
+          editedTask.toMap(),
+          SetOptions(merge: true),
+        )
+        .then((value) {
+      log('edited task');
+    }).catchError((error, stackTrace) {
+      log('error in editing task : ${error.toString()}');
+    });
   }
 
   void deleteTask(Task task, BuildContext context) {

@@ -31,8 +31,7 @@ Future<void> main() async {
 
   runApp(
     MyApp(
-      //   showOnBoard: showOnBoard,
-      showOnBoard: true,
+      showOnBoard: showOnBoard,
     ),
   );
   FlutterNativeSplash.remove();

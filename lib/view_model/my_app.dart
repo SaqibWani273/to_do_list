@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/theme/custom_theme.dart';
 import '../view/screens/auth_screen.dart';
 import '../view/screens/dashboard_screen.dart';
-import '../view/screens/onboard/on_board_screen.dart';
+import '../view/screens/on_board_screen.dart';
 
 class MyApp extends StatelessWidget {
   final bool showOnBoard;

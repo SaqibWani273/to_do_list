@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:to_do_list/view/screens/profile_screen.dart';
 import 'dart:ui' as ui;
 
 import '../../../constants/image_constants.dart';
@@ -63,7 +64,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle ?? false,
       actions: [
         InkWell(
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileScreen(),
+                ));
+          },
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: 24,
