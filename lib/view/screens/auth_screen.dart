@@ -8,6 +8,8 @@ import 'package:to_do_list/view_model/auth_provider.dart';
 import '../widgets/show_country_code.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
+  const AuthScreen({super.key});
+
   @override
   ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }

@@ -1,12 +1,14 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../constants/edit_task.dart';
 import '../model/task.dart';
+import '../view/screens/add_task_screen.dart';
 
 final List<Task> tasksList = [];
-final tasksRef = FirebaseFirestore.instance.collection('tasks');
 
 final fireStoreRef = FirebaseFirestore.instance.collection('tasks');
 
@@ -38,16 +40,13 @@ class TaskNotifier extends StateNotifier<List<Task>> {
   void addNewTask(Task newTask) {
     final newstate = [...state, newTask];
     state = newstate;
-    log("new index = ${state.indexOf(newTask)}");
-    tasksRef
+    fireStoreRef
         .doc(newTask.taskDate.toString())
         .set(newTask.toMap())
+        .then((value) => log('added new task'))
         .catchError((error, stackTrace) {
-      log('${error.toString()}');
+      log('error in adding new task : ${error.toString()}');
     });
-    // tasksRef.add(newTask.toMap()).catchError((error, stackTrace) {
-    //   log('${error.toString()}');
-    // });
   }
 
   void editTask(Task task, Task editedTask) {
@@ -56,35 +55,46 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     state = [...state];
   }
 
-  Future<void> deleteTask(Task task) async {
+  void deleteTask(Task task, BuildContext context) {
     final taskIndex = state.indexOf(task);
-    // for (var element in state) {
-    //   log(element.toMap().toString());
-    // }
-    log(state.isEmpty.toString());
-    log("length= ${state.length}");
-    log('index = ${taskIndex}');
-    state.removeAt(taskIndex);
+    final newState = [...state];
+    newState.removeAt(taskIndex);
 
-    state = [...state];
-    log("length= ${state.length}");
-    try {
-      final docRef = tasksRef.doc(task.taskDate.toString()).id;
-      log('docRef= ${docRef}');
-      await tasksRef.doc(docRef).delete().then((value) {
-        log('Deleted');
-      }).catchError((error) {
-        log('delete failed');
-      });
-    } catch (e) {
-      log("ERror in deleting : ${e.toString()}");
-    }
+    state = newState;
+    fireStoreRef.doc(task.taskDate.toString()).delete().then((value) {
+      log('deleted task');
+    }).catchError((error, stackTrace) {
+      log('error in deleting : ${error.toString()}');
+    });
   }
 
   void toggleIsCompleteStatus(Task task) {
     final taskIndex = state.indexOf(task);
     state[taskIndex].isCompleted = !state[taskIndex].isCompleted;
     state = [...state];
+  }
+}
+
+//outside notifier class
+void updateTask({
+  required TaskEnum value,
+  required WidgetRef ref,
+  required Task currentTask,
+  required BuildContext context,
+}) {
+  if (value == TaskEnum.Edit) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => AddTaskScreen(
+        onSave: (editedTask) {
+          ref.read(taskProvider.notifier).editTask(currentTask, editedTask);
+        },
+        task: currentTask,
+      ),
+    ));
+  } else if (value == TaskEnum.Delelte) {
+    ref.read(taskProvider.notifier).deleteTask(currentTask, context);
+  } else {
+    ref.read(taskProvider.notifier).toggleIsCompleteStatus(currentTask);
   }
 }
 

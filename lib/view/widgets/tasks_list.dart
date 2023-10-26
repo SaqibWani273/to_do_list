@@ -1,19 +1,24 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/constants/edit_task.dart';
 import 'package:to_do_list/model/task.dart';
 import 'package:to_do_list/utility/update_task.dart';
 import 'package:to_do_list/view_model/task_provider.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class TasksList extends StatelessWidget {
   const TasksList({
     super.key,
     required this.taskList,
     required this.ref,
+    required this.parentContext,
   });
 
   final List<Task> taskList;
   final WidgetRef ref;
+  final BuildContext parentContext;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +44,27 @@ class TasksList extends StatelessWidget {
                   ),
                 ),
                 onDismissed: (direction) {
-                  ref.read(taskProvider.notifier).deleteTask(taskList[index]);
+                  //used this pub package as default snackbar was not showing
+                  //due to bottom nav bar and floating action button
+                  Flushbar(
+                    message: 'Task Deleted !',
+                    duration: const Duration(seconds: 3),
+                    flushbarPosition: FlushbarPosition.BOTTOM,
+                    margin: const EdgeInsets.only(bottom: 160),
+                    flushbarStyle: FlushbarStyle.FLOATING,
+                    mainButton: TextButton(
+                      child: const Text('Undo'),
+                      onPressed: () {},
+                    ),
+                    backgroundGradient: LinearGradient(
+                      colors: [
+                        Colors.transparent.withOpacity(0.5),
+                        Colors.blue.withOpacity(0.7),
+                      ],
+                    ),
+                  )
+                      // Show the Flushbar.
+                      .show(context);
                 },
                 child: ListTile(
                   //show icon conditionally if incomplete or if complete

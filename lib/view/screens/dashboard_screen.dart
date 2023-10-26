@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do_list/constants/bottom_bar_list.dart';
@@ -67,6 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ))
                 .toList(),
             onTap: (value) {
+              log('value = $value');
               _pageController.animateToPage(value,
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeIn);
