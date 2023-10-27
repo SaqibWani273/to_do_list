@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,8 +10,11 @@ import '../model/task.dart';
 import '../view/screens/add_task_screen.dart';
 
 final List<Task> tasksList = [];
-
-final fireStoreRef = FirebaseFirestore.instance.collection('tasks');
+final userId = FirebaseAuth.instance.currentUser!.uid;
+final fireStoreRef = FirebaseFirestore.instance
+    .collection('users')
+    .doc(userId)
+    .collection('tasks');
 
 class TaskNotifier extends StateNotifier<List<Task>> {
   TaskNotifier() : super(tasksList);

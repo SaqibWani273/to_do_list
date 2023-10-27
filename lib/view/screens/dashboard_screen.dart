@@ -2,24 +2,39 @@ import 'dart:developer';
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/constants/bottom_bar_list.dart';
+import 'package:to_do_list/model/user_model.dart';
+import 'package:to_do_list/view_model/user_provider.dart';
 
 import '../widgets/app_bar/custom_app_bar.dart';
 import 'home_screen.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   DashboardScreen({Key? key})
       : super(
           key: key,
         );
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final _pageController = PageController(initialPage: 1);
   final _notchController = NotchBottomBarController(index: 1);
+  UserModel? userProfile;
+
+  @override
+  void initState() {
+    setUserProfile();
+    super.initState();
+  }
+
+  Future<void> setUserProfile() async {
+    userProfile = await ref.read(userProvider.notifier).getUserProfile();
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
