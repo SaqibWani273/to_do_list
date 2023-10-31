@@ -27,13 +27,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   void initState() {
-    setUserProfile();
+    // setUserProfile();
     super.initState();
   }
 
-  Future<void> setUserProfile() async {
-    userProfile = await ref.read(userProvider.notifier).getUserProfile();
-  }
+  // Future<void> setUserProfile() async {
+  //   userProfile = await ref.read(userProvider.notifier).getUserProfile();
+  // }
 
   @override
   void dispose() {

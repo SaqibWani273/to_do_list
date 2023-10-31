@@ -1,10 +1,12 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/model/user_model.dart';
 import 'package:to_do_list/view_model/user_provider.dart';
 
+import '../widgets/full_profile_pic.dart';
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -21,7 +23,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Future<void> getUser() async {
-      user = await ref.read(userProvider.notifier).getUserProfile();
+      user = await ref.read(userProvider.notifier).setUserProfile();
       name = user == null ? 'Guest' : user!.name;
       email = user == null ? 'Guest' : user!.email;
       profilePicture = user == null
@@ -48,7 +50,7 @@ class ProfileScreen extends ConsumerWidget {
                 child: CircularProgressIndicator(),
               );
             }
-
+            ref.watch(userProvider);
             return ListView(
               children: [
                 // Profile header with user's name, email, and profile picture
@@ -56,15 +58,25 @@ class ProfileScreen extends ConsumerWidget {
                   padding: EdgeInsets.all(20),
                   child: Row(
                     children: [
-                      user == null
-                          ? CircleAvatar(
-                              radius: 40,
-                              backgroundImage: AssetImage(profilePicture),
-                            )
-                          : CircleAvatar(
-                              radius: 40,
-                              backgroundImage: NetworkImage(profilePicture),
-                            ),
+                      GestureDetector(
+                        onTap: () =>
+                            Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => FullProfilePic(
+                              url: profilePicture, isUser: user != null),
+                        )),
+                        child: Hero(
+                          tag: 'profile',
+                          child: user == null
+                              ? CircleAvatar(
+                                  radius: 40,
+                                  backgroundImage: AssetImage(profilePicture),
+                                )
+                              : CircleAvatar(
+                                  radius: 40,
+                                  backgroundImage: NetworkImage(profilePicture),
+                                ),
+                        ),
+                      ),
                       SizedBox(width: 20),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,8 +148,12 @@ class ProfileScreen extends ConsumerWidget {
                 ListTile(
                   title: Text('Logout'),
                   leading: Icon(Icons.logout),
-                  onTap: () {
+                  onTap: () async {
                     // Logout the user
+                    await FirebaseAuth.instance.signOut();
+                    if (context.mounted) {
+                      Navigator.pop(context);
+                    }
                   },
                 ),
               ],

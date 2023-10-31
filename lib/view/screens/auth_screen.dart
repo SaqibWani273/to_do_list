@@ -62,13 +62,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   Expanded(
                     flex: 3,
                     child: Container(
-                      padding: const EdgeInsets.only(top: 20),
+                      padding: const EdgeInsets.only(top: 50),
                       //     height: deviceData.height! * 0.3,
                       width: deviceData.width! * 0.8,
                       alignment: Alignment.topCenter,
                       child: Image.asset(
-                        'assets/images/img.png',
-                        fit: BoxFit.cover,
+                        "assets/images/splash_img.png",
+                        fit: BoxFit.scaleDown,
                       ),
                     ),
                   ),
@@ -135,16 +135,22 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             padding: const EdgeInsets.all(16.0),
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {
-                                submitForm(
-                                  authVariablesMap: authVariablesMap,
-                                  formKey: _formKey,
-                                  ref: ref,
-                                  context: context,
-                                  phoneNumber: _phoneController.text.trim(),
-                                  otp: _otpController.text.trim(),
-                                );
-                              },
+                              onPressed: authVariablesMap[
+                                      AuthScreenVariables.isverifying]
+                                  ? null
+                                  : () {
+                                      submitForm(
+                                        authVariablesMap: authVariablesMap,
+                                        formKey: _formKey,
+                                        ref: ref,
+                                        context: context,
+                                        phoneNumber:
+                                            _phoneController.text.trim(),
+                                        otp: _otpController.text.trim(),
+                                      );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                  disabledBackgroundColor: Colors.lightBlue),
                               child: authVariablesMap[
                                       AuthScreenVariables.isverifying]
                                   ? const SizedBox(

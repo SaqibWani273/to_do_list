@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:to_do_list/view_model/user_provider.dart';
 
 import '../../constants/image_constants.dart';
 import '../../model/task.dart';
@@ -29,6 +30,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> loadTaskList() async {
     tasksList = await ref.read(taskProvider.notifier).getTasksList();
+    final temp = ref.read(userProvider.notifier).setUserProfile();
     //to stop showing shimmer effect in ui
     setState(() {
       loadingData = false;

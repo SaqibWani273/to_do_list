@@ -13,25 +13,28 @@ final userProfileRef =
 class UserProvider extends StateNotifier<UserModel?> {
   UserProvider() : super(null);
 
-  void addUserProfile(UserModel userModel) {
-    userProfileRef
-        .set(userModel.toMap(), SetOptions(merge: true))
-        .then((value) => log('added new user'))
-        .catchError((error, stackTrace) {
-      log('error in adding user profile : ${error.toString()}');
-    });
+  Future<void> addUserProfile(UserModel userModel) async {
+    try {
+      await userProfileRef.set(userModel.toMap(), SetOptions(merge: true));
+    } catch (err) {
+      log('error in adding user profile :err.toString()');
+    }
+
+    state = userModel;
   }
 
-  Future<UserModel?> getUserProfile() async {
+  Future<UserModel?> setUserProfile() async {
     final snapshot = await userProfileRef.get();
     //check if user has profile info in the collection or not
     final isUserProfileCreated = snapshot.data() != null &&
         snapshot.data()!.containsKey('profilePictureUrl');
 
     if (isUserProfileCreated) {
-      return UserModel.fromMap(snapshot.data()!);
+      state = UserModel.fromMap(snapshot.data()!);
+    } else {
+      state = null;
     }
-    return null;
+    return state;
   }
 }
 

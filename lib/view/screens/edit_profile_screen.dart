@@ -19,32 +19,18 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   String _name = '';
   String _email = '';
-  String? _profilePic = '';
+  String? _profilePic;
   final nameController = TextEditingController();
   final emailController = TextEditingController();
-
-  void _updateName(String newName) {
-    setState(() {
-      _name = newName;
-    });
-  }
-
-  void _updateEmail(String newEmail) {
-    setState(() {
-      _email = newEmail;
-    });
-  }
-
-  void _updateProfilePic(String newProfilePic) {
-    setState(() {
-      _profilePic = newProfilePic;
-    });
-  }
+  var uploadingPic = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Colors.black,
         title: const Text('Edit Profile'),
       ),
       body: SingleChildScrollView(
@@ -53,30 +39,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              InkWell(
-                child: widget.user == null
-                    ? const CircleAvatar(
-                        backgroundImage:
-                            AssetImage('assets/images/unknown_user.png'),
-                        radius: 50.0,
-                      )
-                    : CircleAvatar(
-                        backgroundImage: NetworkImage(_profilePic ?? ''),
-                        radius: 50.0,
+              uploadingPic
+                  ? const CircleAvatar(
+                      radius: 50.0,
+                      backgroundColor: Colors.grey,
+                      foregroundColor: Colors.grey,
+                      child: SizedBox(
+                        height: 15,
+                        width: 10,
+                        child: CircularProgressIndicator.adaptive(
+                          strokeWidth: 5.0,
+                        ),
                       ),
-                onTap: () async {
-                  _profilePic = await getImageUrl();
-                  log(_profilePic.toString());
-                  setState(() {});
-                },
-              ),
+                    )
+                  : InkWell(
+                      child: _profilePic == null
+                          ? const CircleAvatar(
+                              radius: 50.0,
+                              foregroundImage:
+                                  AssetImage('assets/images/unknown_user.png'),
+                            )
+                          : CircleAvatar(
+                              backgroundColor: Colors.grey,
+                              foregroundColor: Colors.grey,
+                              backgroundImage: NetworkImage(_profilePic ?? ''),
+                              radius: 50.0,
+                            ),
+                      onTap: () async {
+                        setState(() {
+                          uploadingPic = true;
+                        });
+                        _profilePic = await getImageUrl();
+                        log(_profilePic.toString());
+                        setState(() {
+                          uploadingPic = false;
+                        });
+                      },
+                    ),
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: nameController,
                 decoration: const InputDecoration(
                   labelText: 'Name',
                 ),
-                onChanged: _updateName,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -84,12 +89,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Email',
                 ),
-                onChanged: _updateEmail,
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(
                 child: const Text('Update Profile'),
-                onPressed: () {
+                onPressed: () async {
                   // Implement profile update logic here
                   final userModel = UserModel.fromMap({
                     'name': nameController.text,
@@ -97,9 +101,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     'profilePictureUrl': _profilePic,
                     'phone': '1234567890',
                   });
-                  widget.ref
+                  await widget.ref
                       .read(userProvider.notifier)
                       .addUserProfile(userModel);
+                  Navigator.of(context).pop();
                 },
               ),
             ],

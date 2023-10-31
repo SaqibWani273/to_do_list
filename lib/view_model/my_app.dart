@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,24 +17,26 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProviderScope(
         child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: theme,
-            home: showOnBoard
-                ? const OnBoardScreen()
-                : StreamBuilder(
-                    stream: FirebaseAuth.instance.userChanges(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Scaffold(
-                          body: Center(
-                              child: CircularProgressIndicator.adaptive()),
-                        );
-                      }
-                      if (snapshot.hasData) {
-                        return DashboardScreen();
-                      }
-                      return const AuthScreen();
-                    },
-                  )));
+      debugShowCheckedModeBanner: false,
+      theme: theme,
+      home: showOnBoard
+          ? const OnBoardScreen()
+          : StreamBuilder(
+              stream: FirebaseAuth.instance.userChanges(),
+              builder: (context, snapshot) {
+                log("atuh status changed");
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  log('waiting...');
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator.adaptive()),
+                  );
+                }
+                if (snapshot.hasData) {
+                  return DashboardScreen();
+                }
+                return const AuthScreen();
+              },
+            ),
+    ));
   }
 }
