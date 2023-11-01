@@ -46,12 +46,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Colors.black,
         title: const Text('Authentication'),
       ),
       body: SingleChildScrollView(
         child: Container(
           height: deviceData.height,
-          color: Colors.white,
+          //  color: Colors.white,
           child: Form(
               key: _formKey,
               child: Column(

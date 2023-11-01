@@ -14,6 +14,16 @@ Future<void> imageFromGallery() async {
   }
 }
 
+Future<File?> getImageFileFromGallery() async {
+  File? imageFile1;
+  final picker = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+  if (picker != null) {
+    imageFile1 = File(picker.path);
+  }
+  return imageFile1;
+}
+
 Future<String?> getImageUrl() async {
   await imageFromGallery();
   //upload that to firebaseStorage
@@ -27,14 +37,6 @@ Future<String?> getImageUrl() async {
   final destination = 'profilePics/$fileName';
   final snapshot = await storageRef.child(destination).putFile(imageFile!);
   final url = await snapshot.ref.getDownloadURL();
-  // task.whenComplete(() {
-  //   task.snapshot.ref.getDownloadURL().then((value) {
-  //     url = value;
-  //   });
-  //   log('image uploaded to firebase storage');
-  // });
-  // task.catchError((err) => log(err.toString()));
 
-  log(url.toString());
   return url;
 }
