@@ -43,8 +43,7 @@ class OnBoardWidget extends StatelessWidget {
                       onPressed: () => Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const MyApp(showOnBoard: false),
+                            builder: (context) => const AuthStreamHandler(),
                           )),
                     )),
                 CustomImageView(
@@ -115,7 +114,7 @@ class OnBoardWidget extends StatelessWidget {
               onPressed: () {
                 index == 2
                     ? Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const MyApp(showOnBoard: false),
+                        builder: (context) => const AuthStreamHandler(),
                       ))
                     : pageController.animateToPage(index + 1,
                         duration: const Duration(milliseconds: 400),

@@ -19,6 +19,7 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
   Future<void> setData() async {
     final sharedPref = await SharedPreferences.getInstance();
     sharedPref.setBool(isNewUser, false);
+    sharedPref.setBool(userHasData, false);
   }
 
   @override

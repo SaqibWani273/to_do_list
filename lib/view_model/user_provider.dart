@@ -23,7 +23,7 @@ class UserProvider extends StateNotifier<UserModel?> {
     state = userModel;
   }
 
-  Future<UserModel?> setUserProfile() async {
+  Future<void> setUserProfile() async {
     final snapshot = await userProfileRef.get();
     //check if user has profile info in the collection or not
     final isUserProfileCreated = snapshot.data() != null &&
@@ -34,7 +34,6 @@ class UserProvider extends StateNotifier<UserModel?> {
     } else {
       state = null;
     }
-    return state;
   }
 }
 

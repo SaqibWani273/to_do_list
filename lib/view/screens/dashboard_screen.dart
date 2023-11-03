@@ -1,12 +1,15 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/constants/bottom_bar_list.dart';
 import 'package:to_do_list/model/user_model.dart';
 import 'package:to_do_list/view_model/user_provider.dart';
 
+import '../../view_model/task_provider.dart';
 import '../widgets/app_bar/custom_app_bar.dart';
 import 'home_screen.dart';
 
@@ -24,21 +27,50 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final _pageController = PageController(initialPage: 1);
   final _notchController = NotchBottomBarController(index: 1);
   UserModel? userProfile;
-
+  late StreamSubscription<ConnectivityResult> connectivityStream;
+  late ConnectivityResult _connectivityResult;
   @override
   void initState() {
-    // setUserProfile();
     super.initState();
+    //to load all kinds of user related data
+    loadUserData();
+    //to check  internet for the first time
+    checkInternet();
+    //listen to internet connectivity changes
+    listenInternetConnectivity();
   }
 
-  // Future<void> setUserProfile() async {
-  //   userProfile = await ref.read(userProvider.notifier).getUserProfile();
-  // }
+  Future<void> loadUserData() async {
+    log('load user data called..');
+    // await ref.read(taskProvider.notifier).setTasksList();
+    // await ref.read(userProvider.notifier).setUserProfile();
+  }
+
+  checkInternet() async {
+    _connectivityResult = await Connectivity().checkConnectivity();
+    manageIneternetConnectivity(_connectivityResult);
+  }
+
+  listenInternetConnectivity() {
+    connectivityStream = Connectivity()
+        .onConnectivityChanged
+        .listen(manageIneternetConnectivity);
+  }
+
+  manageIneternetConnectivity(ConnectivityResult connectivityResult) {
+    if (connectivityResult == ConnectivityResult.none) {
+      log('no internet');
+    } else if (connectivityResult == ConnectivityResult.wifi ||
+        connectivityResult == ConnectivityResult.mobile) {
+      log('connected to internet');
+    }
+  }
 
   @override
   void dispose() {
     _pageController.dispose();
     _notchController.dispose();
+    connectivityStream.cancel();
     super.dispose();
   }
 

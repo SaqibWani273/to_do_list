@@ -23,7 +23,8 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Future<void> getUser() async {
-      user = await ref.read(userProvider.notifier).setUserProfile();
+      await ref.read(userProvider.notifier).setUserProfile();
+      user = ref.watch(userProvider);
       name = user == null ? 'Guest' : user!.name;
       email = user == null ? 'Guest' : user!.email;
       profilePicture = user == null
@@ -37,10 +38,6 @@ class ProfileScreen extends ConsumerWidget {
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           foregroundColor: Colors.black,
           title: Text('Profile'),
-          // leading: Icon(
-          //   Icons.arrow_back_ios_new,
-          //   color: Colors.black,
-          // ),
         ),
         body: FutureBuilder(
           future: getUser(),

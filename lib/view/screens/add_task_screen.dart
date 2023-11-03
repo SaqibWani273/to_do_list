@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../model/task.dart';
 
@@ -120,12 +121,14 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                 child: const Text('Save'),
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
+                    final taskId = const Uuid().v4();
                     final newTask = Task(
                       taskName: _taskNameController.text,
                       taskDate: _selectedDate,
                       taskPriority: _selectedPriority,
                       taskCategory: _selectedCategory,
                       isCompleted: false,
+                      id: taskId,
                     );
 
                     widget.onSave(newTask);
