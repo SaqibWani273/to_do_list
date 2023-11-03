@@ -18,8 +18,7 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
   final _pageController = PageController(initialPage: 0);
   Future<void> setData() async {
     final sharedPref = await SharedPreferences.getInstance();
-    sharedPref.setBool(isNewUser, false);
-    sharedPref.setBool(userHasData, false);
+    sharedPref.setBool(usedDevice, true);
   }
 
   @override

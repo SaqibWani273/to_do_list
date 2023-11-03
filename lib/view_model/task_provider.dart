@@ -37,31 +37,22 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       state = tasksList;
       return;
     }
-    //=>tasksList is null
+    //=>tasksList is null at local db
     final sharedPref = await SharedPreferences.getInstance();
     if (sharedPref.getBool(userHasNoData) != null &&
         sharedPref.getBool(userHasNoData) == true) {
+      //=> user has no data
       return;
     }
-    //=>tasksList is null
-
-    // final data = await fireStoreRef.get();
-    // final List<QueryDocumentSnapshot<Map<String, dynamic>>> docsList =
-    //     data.docs;
-
-    // if (docsList.isEmpty) {
-    //   return;
-    // }
-    // final tasksList = docsList.map((e) {
-    //   late Task task;
-    //   try {
-    //     task = Task.fromMap(e.data());
-    //   } catch (e) {
-    //     log("error in task.fromMap = ${e.toString()}");
-    //   }
-    //   return task;
-    // }).toList();
-    // state = tasksList;
+    //Code below will get executed only if user has recently uninstalled or
+    //cleared app data
+    //to do : check if there is internet connection then show message to
+    //user accordingly
+    tasksList = await taskListFromFireStore();
+    if (tasksList != null) {
+      state = tasksList;
+    }
+    //=>tasksList is null at firestore
   }
 
   Future<void> addNewTask(Task newTask) async {
@@ -73,15 +64,14 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       log('Error in add new task to local db : ${e.toString()}');
       return;
     }
-    final sharedPref = await SharedPreferences.getInstance();
-    sharedPref.setBool(userHasData, true);
-    // fireStoreRef
-    //     .doc(newTask.taskDate.toString())
-    //     .set(newTask.toMap())
-    //     .then((value) => log('added new task'))
-    //     .catchError((error, stackTrace) {
-    //   log('error in adding new task : ${error.toString()}');
-    // });
+
+    fireStoreRef
+        .doc(newTask.taskDate.toString())
+        .set(newTask.toMap())
+        .then((value) => log('added new task'))
+        .catchError((error, stackTrace) {
+      log('error in adding new task to firestore: ${error.toString()}');
+    });
   }
 
   Future<void> editTask(Task task, Task editedTask) async {
@@ -94,17 +84,17 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     final taskIndex = state.indexOf(task);
     state[taskIndex] = editedTask;
     state = [...state];
-    // fireStoreRef
-    //     .doc(editedTask.taskDate.toString())
-    //     .set(
-    //       editedTask.toMap(),
-    //       SetOptions(merge: true),
-    //     )
-    //     .then((value) {
-    //   log('edited task');
-    // }).catchError((error, stackTrace) {
-    //   log('error in editing task : ${error.toString()}');
-    // });
+    fireStoreRef
+        .doc(editedTask.taskDate.toString())
+        .set(
+          editedTask.toMap(),
+          SetOptions(merge: true),
+        )
+        .then((value) {
+      log('edited task');
+    }).catchError((error, stackTrace) {
+      log('error in editing task : ${error.toString()}');
+    });
   }
 
   Future<void> deleteTask(Task task, BuildContext context) async {
@@ -122,12 +112,15 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     state = newState;
     //to update whether user has data or not
     final sharedPref = await SharedPreferences.getInstance();
-    sharedPref.setBool(userHasData, state.isNotEmpty);
-    // fireStoreRef.doc(task.taskDate.toString()).delete().then((value) {
-    //   log('deleted task');
-    // }).catchError((error, stackTrace) {
-    //   log('error in deleting : ${error.toString()}');
-    // });
+    if (state.isEmpty) {
+      sharedPref.setBool(userHasNoData, true);
+    }
+
+    fireStoreRef.doc(task.taskDate.toString()).delete().then((value) {
+      log('deleted task');
+    }).catchError((error, stackTrace) {
+      log('error in deleting : ${error.toString()}');
+    });
   }
 
   void toggleIsCompleteStatus(Task task) {
@@ -173,6 +166,25 @@ Future<List<Task>?> tasksListFromLocal() async {
   if (dataInTable.isNotEmpty) {
     tasksList = dataInTable.map((e) => Task.fromMap(e)).toList();
   }
+  return tasksList;
+}
+
+Future<List<Task>?> taskListFromFireStore() async {
+  final data = await fireStoreRef.get();
+  final List<QueryDocumentSnapshot<Map<String, dynamic>>> docsList = data.docs;
+
+  if (docsList.isEmpty) {
+    return null;
+  }
+  final tasksList = docsList.map((e) {
+    late Task task;
+    try {
+      task = Task.fromMap(e.data());
+    } catch (e) {
+      log("error in task.fromMap = ${e.toString()}");
+    }
+    return task;
+  }).toList();
   return tasksList;
 }
 

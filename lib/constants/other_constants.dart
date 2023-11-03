@@ -1,2 +1,2 @@
-const String isNewUser = 'isNewUser';
-const String userHasData = 'userHasData';
+const String usedDevice = 'usedDevice';
+const String userHasNoData = 'userHasNoData';

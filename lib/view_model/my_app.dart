@@ -9,9 +9,12 @@ import '../view/screens/auth_screen.dart';
 import '../view/screens/dashboard_screen.dart';
 import '../view/screens/on_board_screen.dart';
 
-class MyApp extends StatelessWidget {
-  final bool showOnBoard;
-  const MyApp({super.key, required this.showOnBoard});
+class AuthStreamHandler extends StatelessWidget {
+//  final bool showOnBoard;
+  const AuthStreamHandler({
+    super.key,
+    //  required this.showOnBoard
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,24 +22,26 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: theme,
-      home: showOnBoard
-          ? const OnBoardScreen()
-          : StreamBuilder(
-              stream: FirebaseAuth.instance.userChanges(),
-              builder: (context, snapshot) {
-                log("atuh status changed");
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  log('waiting...');
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator.adaptive()),
-                  );
-                }
-                if (snapshot.hasData) {
-                  return DashboardScreen();
-                }
-                return const AuthScreen();
-              },
-            ),
+      home:
+          //  showOnBoard
+          //     ? const OnBoardScreen()
+          //     :
+          StreamBuilder(
+        stream: FirebaseAuth.instance.userChanges(),
+        builder: (context, snapshot) {
+          log("atuh status changed");
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            log('waiting...');
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator.adaptive()),
+            );
+          }
+          if (snapshot.hasData) {
+            return DashboardScreen();
+          }
+          return const AuthScreen();
+        },
+      ),
     ));
   }
 }
