@@ -1,47 +1,30 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../constants/theme/custom_theme.dart';
 import '../view/screens/auth_screen.dart';
 import '../view/screens/dashboard_screen.dart';
-import '../view/screens/on_board_screen.dart';
 
 class AuthStreamHandler extends StatelessWidget {
-//  final bool showOnBoard;
-  const AuthStreamHandler({
-    super.key,
-    //  required this.showOnBoard
-  });
+  const AuthStreamHandler({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-        child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: theme,
-      home:
-          //  showOnBoard
-          //     ? const OnBoardScreen()
-          //     :
-          StreamBuilder(
+      child: StreamBuilder(
         stream: FirebaseAuth.instance.userChanges(),
         builder: (context, snapshot) {
-          log("atuh status changed");
           if (snapshot.connectionState == ConnectionState.waiting) {
-            log('waiting...');
             return const Scaffold(
               body: Center(child: CircularProgressIndicator.adaptive()),
             );
           }
           if (snapshot.hasData) {
-            return DashboardScreen();
+            return const DashboardScreen();
           }
           return const AuthScreen();
         },
       ),
-    ));
+    );
   }
 }

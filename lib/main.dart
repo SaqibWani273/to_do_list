@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -12,19 +14,31 @@ import 'package:to_do_list/constants/firebase_files/firebase_options.dart';
 
 import 'package:to_do_list/constants/other_constants.dart';
 import 'package:to_do_list/constants/theme/custom_theme.dart';
+import 'package:to_do_list/view/screens/no_internet_screen.dart';
 import 'package:to_do_list/view/screens/on_board_screen.dart';
 
-import 'view_model/my_app.dart';
+import 'view_model/auth_stream_handler.dart';
 
 Future<void> main() async {
-  final showOnBoard = await asyncTasksHandler();
+  try {
+    bool? showOnBoard = await asyncTasksHandler();
+    runApp(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: theme,
+      home: showOnBoard == null
+          ? const NoInternetScreen()
+          : showOnBoard
+              ? const OnBoardScreen()
+              : const AuthStreamHandler(),
+    ));
+  } catch (e) {
+    log('error occurred in main : ${e.toString()}');
+  }
 
-  runApp(showOnBoard ? const OnBoardScreen() : const AuthStreamHandler());
   FlutterNativeSplash.remove();
 }
 
-Future<bool> asyncTasksHandler() async {
-  final sharedPref = await SharedPreferences.getInstance();
+Future<bool?> asyncTasksHandler() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -34,7 +48,7 @@ Future<bool> asyncTasksHandler() async {
     statusBarColor: ColorSchemes.primaryColorScheme.onPrimary,
     statusBarIconBrightness: Brightness.dark,
   ));
-
+  final sharedPref = await SharedPreferences.getInstance();
   //use sharedprefrence to check whether newdevice or not
   if (sharedPref.getBool(usedDevice) != null) {
     //do not show onboardScreen
@@ -47,8 +61,9 @@ Future<bool> asyncTasksHandler() async {
   late String? uinqueDeviceId;
 
   if (kIsWeb) {
+    //handle for web later
     final webInfo = await deviceInfo.webBrowserInfo;
-    // uinqueDeviceId = webInfo.userAgent;
+    uinqueDeviceId = webInfo.userAgent;
   } else {
     if (Platform.isAndroid) {
       final androidInfo = await deviceInfo.androidInfo;
@@ -59,16 +74,25 @@ Future<bool> asyncTasksHandler() async {
       uinqueDeviceId = iosInfo.identifierForVendor;
     }
   }
-  //check if firestore collection contains this unique identifier
-  final ref = FirebaseFirestore.instance.collection('Devices');
-  final doc = await ref.doc(uinqueDeviceId).get();
-  if (!doc.exists) {
-    //device using app for first time
-    sharedPref.setBool(userHasNoData, true);
-    await ref.doc(uinqueDeviceId).set({'id': uinqueDeviceId});
-    //true for showing onboardscreen
-    return true;
+  //check if user has internet connection
+  final connectivityResult = await Connectivity().checkConnectivity();
+  if (connectivityResult == ConnectivityResult.ethernet ||
+      connectivityResult == ConnectivityResult.mobile ||
+      connectivityResult == ConnectivityResult.wifi) {
+    //probabbly has internet
+    //check if firestore collection contains this unique identifier
+    final ref = FirebaseFirestore.instance.collection('Devices');
+    final doc = await ref.doc(uinqueDeviceId).get();
+    if (!doc.exists) {
+      //device using app for first time
+      sharedPref.setBool(userHasNoData, true);
+      await ref.doc(uinqueDeviceId).set({'id': uinqueDeviceId});
+      //true for showing onboardscreen
+      return true;
+    }
+    //device has been used before
+    //false for not showing onboardscreen
+    return false;
   }
-  //device has been used before
-  return false;
+  return null;
 }

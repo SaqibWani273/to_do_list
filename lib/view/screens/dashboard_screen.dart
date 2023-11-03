@@ -2,22 +2,22 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+// import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:to_do_list/constants/bottom_bar_list.dart';
 import 'package:to_do_list/model/user_model.dart';
 import 'package:to_do_list/view_model/user_provider.dart';
 
+import '../../model/task.dart';
 import '../../view_model/task_provider.dart';
 import '../widgets/app_bar/custom_app_bar.dart';
+import '../widgets/place_holder_widget.dart';
 import 'home_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
-  DashboardScreen({Key? key})
-      : super(
-          key: key,
-        );
+  const DashboardScreen({Key? key}) : super(key: key);
 
   @override
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
@@ -27,56 +27,51 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final _pageController = PageController(initialPage: 1);
   final _notchController = NotchBottomBarController(index: 1);
   UserModel? userProfile;
-  late StreamSubscription<ConnectivityResult> connectivityStream;
-  late ConnectivityResult _connectivityResult;
+  var loadingData = true;
+  late List<Task>? tasksList;
+
   @override
   void initState() {
     super.initState();
     //to load all kinds of user related data
     loadUserData();
-    //to check  internet for the first time
-    checkInternet();
-    //listen to internet connectivity changes
-    listenInternetConnectivity();
   }
 
   Future<void> loadUserData() async {
-    log('load user data called..');
-    // await ref.read(taskProvider.notifier).setTasksList();
-    // await ref.read(userProvider.notifier).setUserProfile();
-  }
-
-  checkInternet() async {
-    _connectivityResult = await Connectivity().checkConnectivity();
-    manageIneternetConnectivity(_connectivityResult);
-  }
-
-  listenInternetConnectivity() {
-    connectivityStream = Connectivity()
-        .onConnectivityChanged
-        .listen(manageIneternetConnectivity);
-  }
-
-  manageIneternetConnectivity(ConnectivityResult connectivityResult) {
-    if (connectivityResult == ConnectivityResult.none) {
-      log('no internet');
-    } else if (connectivityResult == ConnectivityResult.wifi ||
-        connectivityResult == ConnectivityResult.mobile) {
-      log('connected to internet');
-    }
+    await ref.read(taskProvider.notifier).setTasksList();
+    await ref.read(userProvider.notifier).setUserProfile();
+    tasksList = ref.read(taskProvider);
+    //to stop showing shimmer effect in ui
+    setState(() {
+      loadingData = false;
+    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     _notchController.dispose();
-    connectivityStream.cancel();
+    // connectivityStream.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     //final mediaQueryData = MediaQuery.of(context);
+    if (loadingData) {
+      return Scaffold(
+        body: Shimmer.fromColors(
+          baseColor:
+              Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+          highlightColor: Theme.of(context).scaffoldBackgroundColor,
+          child: ListView.builder(
+            itemCount: 5,
+            itemBuilder: (context, index) => const PlaceHolderWidget(),
+          ),
+        ),
+      );
+    }
+    userProfile = ref.watch(userProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -89,7 +84,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             controller: _pageController,
             children: [
               const CalendarScreen(),
-              const HomeScreen(),
+              HomeScreen(tasksList: tasksList),
               const FocusScreen()
             ],
           ),

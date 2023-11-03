@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:another_flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/constants/edit_task.dart';
@@ -9,7 +10,7 @@ import 'package:to_do_list/view_model/task_provider.dart';
 import 'package:another_flushbar/flushbar.dart';
 
 class TasksList extends StatelessWidget {
-  const TasksList({
+  TasksList({
     super.key,
     required this.taskList,
     required this.ref,
@@ -43,19 +44,22 @@ class TasksList extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                onDismissed: (direction) {
+                onDismissed: (direction) async {
                   //used this pub package as default snackbar was not showing
                   //due to bottom nav bar and floating action button
-                  // ScaffoldMessenger.of(context)
-                  //     .hideCurrentSnackBar(reason: SnackBarClosedReason.swipe);
                   Flushbar(
                     message: 'Task Deleted !',
                     duration: const Duration(seconds: 3),
                     flushbarPosition: FlushbarPosition.BOTTOM,
-                    margin: const EdgeInsets.only(bottom: 160),
                     flushbarStyle: FlushbarStyle.FLOATING,
                     mainButton: TextButton(
-                      child: const Text('Undo'),
+                      child: const Text(
+                        'Undo',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.lightBlue.withOpacity(0.1),
+                      ),
                       onPressed: () {
                         //to do : choose better approach later
                         ref
@@ -63,15 +67,16 @@ class TasksList extends StatelessWidget {
                             .addNewTask(taskList[index]);
                       },
                     ),
-                    backgroundGradient: LinearGradient(
+                    backgroundGradient: const LinearGradient(
                       colors: [
-                        Colors.transparent.withOpacity(0.5),
-                        Colors.blue.withOpacity(0.7),
+                        Colors.black,
+                        Colors.black,
                       ],
                     ),
                   )
                       // Show the Flushbar.
                       .show(context);
+
                   ref
                       .read(taskProvider.notifier)
                       .deleteTask(taskList[index], context);

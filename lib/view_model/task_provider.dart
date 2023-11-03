@@ -57,44 +57,43 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
   Future<void> addNewTask(Task newTask) async {
     final newstate = [...state, newTask];
-    state = newstate;
+
     try {
       await addToLocalDb(newTask);
     } catch (e) {
       log('Error in add new task to local db : ${e.toString()}');
       return;
     }
-
-    fireStoreRef
-        .doc(newTask.taskDate.toString())
-        .set(newTask.toMap())
-        .then((value) => log('added new task'))
-        .catchError((error, stackTrace) {
-      log('error in adding new task to firestore: ${error.toString()}');
-    });
+    try {
+      await fireStoreRef.doc(newTask.id).set(newTask.toMap());
+    } catch (e) {
+      log('error in adding new task to firestore: ${e.toString()}');
+      return;
+    }
+    //update state at the end
+    state = newstate;
   }
 
   Future<void> editTask(Task task, Task editedTask) async {
     try {
       await editFromLocalDb(editedTask);
     } catch (e) {
-      log('error in editing task : ${e.toString()}');
+      log('error in editing task at local db: ${e.toString()}');
       return;
     }
+
+    try {
+      await fireStoreRef
+          .doc(editedTask.id)
+          .set(editedTask.toMap(), SetOptions(merge: true));
+    } catch (e) {
+      log('error in editing task at firestore: ${e.toString()}');
+      return;
+    }
+    //update state
     final taskIndex = state.indexOf(task);
     state[taskIndex] = editedTask;
     state = [...state];
-    fireStoreRef
-        .doc(editedTask.taskDate.toString())
-        .set(
-          editedTask.toMap(),
-          SetOptions(merge: true),
-        )
-        .then((value) {
-      log('edited task');
-    }).catchError((error, stackTrace) {
-      log('error in editing task : ${error.toString()}');
-    });
   }
 
   Future<void> deleteTask(Task task, BuildContext context) async {
@@ -105,6 +104,12 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       return;
     }
 
+    try {
+      await fireStoreRef.doc(task.id).delete();
+    } catch (e) {
+      log('error in deleting from firestore : ${e.toString()}');
+      return;
+    }
     final taskIndex = state.indexOf(task);
     final newState = [...state];
     newState.removeAt(taskIndex);
@@ -115,43 +120,17 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     if (state.isEmpty) {
       sharedPref.setBool(userHasNoData, true);
     }
-
-    fireStoreRef.doc(task.taskDate.toString()).delete().then((value) {
-      log('deleted task');
-    }).catchError((error, stackTrace) {
-      log('error in deleting : ${error.toString()}');
-    });
   }
 
   void toggleIsCompleteStatus(Task task) {
     final taskIndex = state.indexOf(task);
     state[taskIndex].isCompleted = !state[taskIndex].isCompleted;
     state = [...state];
+    //to do: edit at local db at firestore
   }
 }
 
 //outside notifier class
-void updateTask({
-  required TaskEnum value,
-  required WidgetRef ref,
-  required Task currentTask,
-  required BuildContext context,
-}) {
-  if (value == TaskEnum.Edit) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => AddTaskScreen(
-        onSave: (editedTask) {
-          ref.read(taskProvider.notifier).editTask(currentTask, editedTask);
-        },
-        task: currentTask,
-      ),
-    ));
-  } else if (value == TaskEnum.Delelte) {
-    ref.read(taskProvider.notifier).deleteTask(currentTask, context);
-  } else {
-    ref.read(taskProvider.notifier).toggleIsCompleteStatus(currentTask);
-  }
-}
 
 Future<List<Task>?> tasksListFromLocal() async {
   //to get the appdirectory where the databases are stored
@@ -162,8 +141,14 @@ Future<List<Task>?> tasksListFromLocal() async {
     path.join(dbPath, 'todo.db'),
   );
 
-  final dataInTable = await db.query('Tasks_List');
-  if (dataInTable.isNotEmpty) {
+  final tableExists = await db.query(
+    'sqlite_master',
+    where: 'name = ?',
+    whereArgs: ['Tasks_List'],
+  );
+
+  if (tableExists.isNotEmpty) {
+    final dataInTable = await db.query('Tasks_List');
     tasksList = dataInTable.map((e) => Task.fromMap(e)).toList();
   }
   return tasksList;
@@ -193,7 +178,7 @@ Future<void> addToLocalDb(Task newTask) async {
   final dbPath = await sqflite.getDatabasesPath();
 
   //the query to create a table for storing tasks
-  const createQuery = '''Create table Tasks_List(id  TEXT,
+  const createQuery = '''Create table IF NOT EXISTS Tasks_List(id  TEXT,
        taskName TEXT,
       taskDate int,
        taskPriority TEXT,
@@ -201,11 +186,9 @@ Future<void> addToLocalDb(Task newTask) async {
         isCompleted INTEGER)''';
 
   //here we open a specific database
-  final db = await sqflite.openDatabase(path.join(dbPath, 'todo.db'),
-      onCreate: (db, version) {
-    //oncreate gets called only for the first time when this 'todo.db' gets created
-    return db.execute(createQuery);
-  }, version: 1);
+  final db = await sqflite.openDatabase(path.join(dbPath, 'todo.db'));
+  db.execute(createQuery);
+
   //now insert the data into table
   await db.insert(
     'Tasks_List',

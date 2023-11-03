@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../constants/theme/custom_theme.dart';
-import '../../view_model/my_app.dart';
+import '../../view_model/auth_stream_handler.dart';
 import 'custom_image_view.dart';
 import 'custom_text_button.dart';
 
