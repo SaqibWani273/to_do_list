@@ -1,13 +1,11 @@
-import 'dart:developer';
-
-import 'package:another_flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:to_do_list/constants/edit_task.dart';
 import 'package:to_do_list/model/task.dart';
 import 'package:to_do_list/utility/update_task.dart';
 import 'package:to_do_list/view_model/task_provider.dart';
 import 'package:another_flushbar/flushbar.dart';
+
+import '../../constants/other_constants.dart';
 
 class TasksList extends StatelessWidget {
   TasksList({
@@ -47,7 +45,7 @@ class TasksList extends StatelessWidget {
                 onDismissed: (direction) async {
                   //used this pub package as default snackbar was not showing
                   //due to bottom nav bar and floating action button
-                  Flushbar(
+                  await Flushbar(
                     message: 'Task Deleted !',
                     duration: const Duration(seconds: 3),
                     flushbarPosition: FlushbarPosition.BOTTOM,
@@ -60,8 +58,9 @@ class TasksList extends StatelessWidget {
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.lightBlue.withOpacity(0.1),
                       ),
-                      onPressed: () {
-                        //to do : choose better approach later
+                      onPressed: () async {
+                        //to do : choose better approach lat]er
+
                         ref
                             .read(taskProvider.notifier)
                             .addNewTask(taskList[index]);
@@ -83,12 +82,17 @@ class TasksList extends StatelessWidget {
                 },
                 child: ListTile(
                   //show icon conditionally if incomplete or if complete
-                  leading: !taskList[index].isCompleted
-                      ? Icon(
-                          Icons.help,
-                          color: Colors.blue.withRed(200),
-                        )
-                      : const Icon(Icons.check_circle, color: Colors.green),
+                  leading: GestureDetector(
+                    onTap: () => ref
+                        .read(taskProvider.notifier)
+                        .toggleIsCompleteStatus(taskList[index]),
+                    child: !taskList[index].isCompleted
+                        ? Icon(
+                            Icons.radio_button_unchecked,
+                            color: Colors.blue.withRed(200),
+                          )
+                        : const Icon(Icons.check_circle, color: Colors.green),
+                  ),
                   title: Text(taskList[index].taskName),
                   subtitle: Column(
                     children: [

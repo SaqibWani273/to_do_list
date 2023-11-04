@@ -8,6 +8,8 @@ import 'dart:ui' as ui;
 import '../../../constants/image_constants.dart';
 import '../../../constants/theme/custom_theme.dart';
 import '../custom_image_view.dart';
+import 'custom_menu_bar_widget.dart';
+import 'custom_menu_overlay.dart';
 
 // ignore: must_be_immutable
 class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -39,17 +41,20 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       backgroundColor: Colors.transparent,
       leadingWidth: leadingWidth ?? 0,
-      leading: Padding(
-        padding: EdgeInsets.only(
-          left: 33,
-          top: 16,
-          bottom: 16,
-        ),
-        child: CustomImageView(
-          svgPath: ImageConstant.imgMenu,
-          height: 24,
-          width: 24,
-          fit: BoxFit.contain,
+      leading: InkWell(
+        onTap: () => showCustomMenu(context, ref),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 33,
+            top: 16,
+            bottom: 16,
+          ),
+          child: CustomImageView(
+            svgPath: ImageConstant.imgMenu,
+            height: 24,
+            width: 24,
+            fit: BoxFit.contain,
+          ),
         ),
       ),
       title: GestureDetector(
@@ -90,13 +95,6 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     backgroundImage:
                         NetworkImage(userProfile.profilePictureUrl!),
                   ),
-
-            //  CustomImageView(
-            //   imagePath: ImageConstant.unkonwnUser,
-            //   height: 24,
-            //   width: 24,
-            //   fit: BoxFit.contain,
-            // ),
           ),
         )
       ],

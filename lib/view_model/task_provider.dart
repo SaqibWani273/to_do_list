@@ -15,7 +15,7 @@ import '../constants/edit_task.dart';
 import '../model/task.dart';
 import '../view/screens/add_task_screen.dart';
 
-final List<Task> tasksList = [];
+List<Task> completeTasksList = [];
 final userId = FirebaseAuth.instance.currentUser!.uid;
 final fireStoreRef = FirebaseFirestore.instance
     .collection('users')
@@ -23,7 +23,7 @@ final fireStoreRef = FirebaseFirestore.instance
     .collection('tasks');
 
 class TaskNotifier extends StateNotifier<List<Task>> {
-  TaskNotifier() : super(tasksList);
+  TaskNotifier() : super(completeTasksList);
 
   Future<void> setTasksList() async {
 //first try to get tasksList from local storage
@@ -35,6 +35,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     }
     if (tasksList != null) {
       state = tasksList;
+      completeTasksList = state;
       return;
     }
     //=>tasksList is null at local db
@@ -122,11 +123,65 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     }
   }
 
-  void toggleIsCompleteStatus(Task task) {
+  Future<void> toggleIsCompleteStatus(Task task) async {
+    //update at local db
+    try {
+      await toggleIsCompleteStatusFromLocalDb(task);
+    } catch (e) {
+      log("Error in updating local db : ${e.toString()}");
+    }
+    try {
+      fireStoreRef.doc(task.id).update({'isCompleted': !task.isCompleted});
+    } catch (e) {
+      log("Error in updating firestore : ${e.toString()}");
+    }
     final taskIndex = state.indexOf(task);
     state[taskIndex].isCompleted = !state[taskIndex].isCompleted;
     state = [...state];
-    //to do: edit at local db at firestore
+  }
+
+  void listTasks(ListTasksBy listTasksBy) {
+    switch (listTasksBy) {
+      case ListTasksBy.all:
+        final temp = completeTasksList;
+        state = temp;
+        break;
+      case ListTasksBy.date:
+        break;
+      case ListTasksBy.lowPriority:
+        final temp = completeTasksList
+            .where((element) => element.taskPriority == Priority.low)
+            .toList();
+        state = temp;
+
+        break;
+      case ListTasksBy.mediumPriority:
+        break;
+
+      case ListTasksBy.highPriority:
+        break;
+
+      case ListTasksBy.completed:
+        final temp =
+            completeTasksList.where((element) => element.isCompleted).toList();
+        state = temp;
+        break;
+
+      case ListTasksBy.personalCategory:
+        break;
+
+      case ListTasksBy.workCategory:
+        break;
+
+      case ListTasksBy.studyCategory:
+        break;
+
+      case ListTasksBy.otherCategory:
+        break;
+
+      default:
+        break;
+    }
   }
 }
 
@@ -205,6 +260,12 @@ Future<void> deleteFromLocalDb(String id) async {
     path.join(dbPath, 'todo.db'),
   );
   await db.delete('Tasks_List', where: 'id = ?', whereArgs: [id]);
+  final tableData = await db.query('Tasks_List');
+  if (tableData.isEmpty) {
+    // final sharedPref = await SharedPreferences.getInstance();
+    // sharedPref.setBool(userHasNoData, true);
+    log('empty in local db');
+  }
 }
 
 Future<void> editFromLocalDb(Task editedTask) async {
@@ -229,5 +290,22 @@ Future<void> editFromLocalDb(Task editedTask) async {
   );
 }
 
+Future<void> toggleIsCompleteStatusFromLocalDb(Task task) async {
+  final dbPath = await sqflite.getDatabasesPath();
+
+  //here we open a specific database
+  final db = await sqflite.openDatabase(
+    path.join(dbPath, 'todo.db'),
+  );
+  //query to update data in sqflite database
+  await db.update(
+    'Tasks_List',
+    {'isCompleted': task.isCompleted ? 0 : 1},
+    where: 'id = ?',
+    whereArgs: [task.id],
+  );
+}
+
+//notifier
 final taskProvider =
     StateNotifierProvider<TaskNotifier, List<Task>>((ref) => TaskNotifier());
