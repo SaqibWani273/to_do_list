@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,7 +12,6 @@ import 'package:path/path.dart' as path;
 import 'package:to_do_list/constants/other_constants.dart';
 import 'package:uuid/uuid.dart';
 
-import '../constants/edit_task.dart';
 import '../model/task.dart';
 import '../view/screens/add_task_screen.dart';
 
@@ -52,6 +52,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     tasksList = await taskListFromFireStore();
     if (tasksList != null) {
       state = tasksList;
+      completeTasksList = state;
     }
     //=>tasksList is null at firestore
   }
@@ -116,6 +117,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     newState.removeAt(taskIndex);
 
     state = newState;
+
     //to update whether user has data or not
     final sharedPref = await SharedPreferences.getInstance();
     if (state.isEmpty) {
@@ -131,55 +133,38 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       log("Error in updating local db : ${e.toString()}");
     }
     try {
-      fireStoreRef.doc(task.id).update({'isCompleted': !task.isCompleted});
+      await fireStoreRef
+          .doc(task.id)
+          .update({'isCompleted': !task.isCompleted});
     } catch (e) {
       log("Error in updating firestore : ${e.toString()}");
     }
-    final taskIndex = state.indexOf(task);
-    state[taskIndex].isCompleted = !state[taskIndex].isCompleted;
-    state = [...state];
+    final newState = [...state];
+    final taskIndex = newState.indexOf(task);
+    newState[taskIndex].isCompleted = !newState[taskIndex].isCompleted;
+    state = newState;
   }
 
-  void listTasks(ListTasksBy listTasksBy) {
-    switch (listTasksBy) {
-      case ListTasksBy.all:
-        final temp = completeTasksList;
-        state = temp;
-        break;
-      case ListTasksBy.date:
-        break;
-      case ListTasksBy.lowPriority:
-        final temp = completeTasksList
-            .where((element) => element.taskPriority == Priority.low)
-            .toList();
-        state = temp;
+  void listBy(enumName) {
+    log('in listby, completelist = ${completeTasksList.toString()}');
 
-        break;
-      case ListTasksBy.mediumPriority:
+    switch (enumName) {
+      case ShowList.all:
+        state = completeTasksList;
         break;
 
-      case ListTasksBy.highPriority:
-        break;
-
-      case ListTasksBy.completed:
+      case ShowList.completed:
         final temp =
             completeTasksList.where((element) => element.isCompleted).toList();
         state = temp;
         break;
 
-      case ListTasksBy.personalCategory:
-        break;
-
-      case ListTasksBy.workCategory:
-        break;
-
-      case ListTasksBy.studyCategory:
-        break;
-
-      case ListTasksBy.otherCategory:
-        break;
-
       default:
+        //the remaining are of type Category enum
+        final temp = completeTasksList
+            .where((element) => element.taskCategory == enumName)
+            .toList();
+        state = temp;
         break;
     }
   }
@@ -309,3 +294,18 @@ Future<void> toggleIsCompleteStatusFromLocalDb(Task task) async {
 //notifier
 final taskProvider =
     StateNotifierProvider<TaskNotifier, List<Task>>((ref) => TaskNotifier());
+
+//
+class CustomMenuController extends StateNotifier<bool> {
+  CustomMenuController() : super(false);
+
+  void toggleVisibility() {
+    print('called ');
+    state = !state;
+  }
+}
+
+final customMenuControllerProvider =
+    StateNotifierProvider<CustomMenuController, bool>(
+  (ref) => CustomMenuController(),
+);

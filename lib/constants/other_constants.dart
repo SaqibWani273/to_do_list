@@ -10,18 +10,10 @@ enum TaskEnum {
 final List<TaskEnum> popMenuItemList = [
   TaskEnum.Delelte,
   TaskEnum.Edit,
-  TaskEnum.ToggleMark
+  TaskEnum.ToggleMark,
 ];
 
-enum ListTasksBy {
+enum ShowList {
   all,
-  date,
-  lowPriority,
-  mediumPriority,
-  highPriority,
   completed,
-  personalCategory,
-  workCategory,
-  studyCategory,
-  otherCategory,
 }
