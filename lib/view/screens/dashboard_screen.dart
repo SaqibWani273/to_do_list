@@ -14,6 +14,7 @@ import '../../model/task.dart';
 import '../../view_model/task_provider.dart';
 import '../widgets/app_bar/custom_app_bar.dart';
 import '../widgets/place_holder_widget.dart';
+import 'calendar_screen.dart';
 import 'home_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -83,7 +84,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           body: PageView(
             controller: _pageController,
             children: [
-              const CalendarScreen(),
+              CalendarScreen(tasksList: tasksList),
               HomeScreen(tasksList: tasksList),
               const FocusScreen()
             ],
@@ -121,19 +122,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           //   onChanged: (BottomBarEnum type) {},
 
           ),
-    );
-  }
-}
-
-class CalendarScreen extends StatelessWidget {
-  const CalendarScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: const Center(
-        child: Text('CAlendar'),
-      ),
     );
   }
 }

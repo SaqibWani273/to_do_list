@@ -36,7 +36,6 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     if (tasksList != null) {
       state = tasksList;
       completeTasksList = state;
-      log('from local storage : ${state.map((e) => e.taskTime)}');
       return;
     }
     //=>tasksList is null at local db
