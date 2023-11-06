@@ -67,7 +67,9 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       return;
     }
     try {
-      await fireStoreRef.doc(newTask.id).set(newTask.toMap());
+      //do not use await as it will wait for the task to be added to firestore
+      //before updating state and for that internet connection is required
+      fireStoreRef.doc(newTask.id).set(newTask.toMap());
     } catch (e) {
       log('error in adding new task to firestore: ${e.toString()}');
       return;
@@ -85,7 +87,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     }
 
     try {
-      await fireStoreRef
+      fireStoreRef
           .doc(editedTask.id)
           .set(editedTask.toMap(), SetOptions(merge: true));
     } catch (e) {
@@ -107,7 +109,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     }
 
     try {
-      await fireStoreRef.doc(task.id).delete();
+      fireStoreRef.doc(task.id).delete();
     } catch (e) {
       log('error in deleting from firestore : ${e.toString()}');
       return;
@@ -133,9 +135,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       log("Error in updating local db : ${e.toString()}");
     }
     try {
-      await fireStoreRef
-          .doc(task.id)
-          .update({'isCompleted': !task.isCompleted});
+      fireStoreRef.doc(task.id).update({'isCompleted': !task.isCompleted});
     } catch (e) {
       log("Error in updating firestore : ${e.toString()}");
     }
@@ -190,6 +190,9 @@ Future<List<Task>?> tasksListFromLocal() async {
   if (tableExists.isNotEmpty) {
     final dataInTable = await db.query('Tasks_List');
     tasksList = dataInTable.map((e) => Task.fromMap(e)).toList();
+    //to update device status
+    final sharedPref = await SharedPreferences.getInstance();
+    sharedPref.setBool(usedDevice, true);
   }
   return tasksList;
 }
@@ -221,6 +224,7 @@ Future<void> addToLocalDb(Task newTask) async {
   const createQuery = '''Create table IF NOT EXISTS Tasks_List(id  TEXT,
        taskName TEXT,
       taskDate int,
+      taskTime int,
        taskPriority TEXT,
        taskCategory TEXT,
         isCompleted INTEGER)''';

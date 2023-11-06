@@ -71,7 +71,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             : TasksList(
                 taskList: tasksList!,
                 ref: ref,
-                parentContext: context,
               ),
         customFloatingButton(ref: ref),
       ],

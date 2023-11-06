@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/model/task.dart';
@@ -12,12 +13,10 @@ class TasksList extends StatelessWidget {
     super.key,
     required this.taskList,
     required this.ref,
-    required this.parentContext,
   });
 
   final List<Task> taskList;
   final WidgetRef ref;
-  final BuildContext parentContext;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +26,6 @@ class TasksList extends StatelessWidget {
         await ref.read(taskProvider.notifier).setTasksList();
       },
       child: ListView.builder(
-          //    physics: NeverScrollableScrollPhysics(),
           itemCount: taskList.length,
           itemBuilder: (context, index) => Card(
                 elevation: 0,
@@ -37,6 +35,23 @@ class TasksList extends StatelessWidget {
                     .withOpacity(0.15)
                     .withBlue(150),
                 child: Dismissible(
+                  confirmDismiss: (direction) => showDialog(
+                    context: context,
+                    builder: (context) => CupertinoAlertDialog(
+                      title: const Text('Are you sure?'),
+                      content: const Text('Do you want to delete this task?'),
+                      actions: <Widget>[
+                        CupertinoDialogAction(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('No'),
+                        ),
+                        CupertinoDialogAction(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text('Yes'),
+                        ),
+                      ],
+                    ),
+                  ),
                   key: UniqueKey(),
                   background: Container(
                     color: Colors.red,
@@ -55,22 +70,6 @@ class TasksList extends StatelessWidget {
                       duration: const Duration(seconds: 3),
                       flushbarPosition: FlushbarPosition.BOTTOM,
                       flushbarStyle: FlushbarStyle.FLOATING,
-                      mainButton: TextButton(
-                        child: const Text(
-                          'Undo',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.lightBlue.withOpacity(0.1),
-                        ),
-                        onPressed: () async {
-                          //to do : choose better approach lat]er
-
-                          ref
-                              .read(taskProvider.notifier)
-                              .addNewTask(taskList[index]);
-                        },
-                      ),
                       backgroundGradient: const LinearGradient(
                         colors: [
                           Colors.black,
@@ -80,10 +79,11 @@ class TasksList extends StatelessWidget {
                     )
                         // Show the Flushbar.
                         .show(context);
-
-                    ref
-                        .read(taskProvider.notifier)
-                        .deleteTask(taskList[index], context);
+                    if (context.mounted) {
+                      ref
+                          .read(taskProvider.notifier)
+                          .deleteTask(taskList[index], context);
+                    }
                   },
                   child: ListTile(
                     //show icon conditionally if incomplete or if complete
@@ -111,10 +111,10 @@ class TasksList extends StatelessWidget {
                                       .split(' ')[0]),
                                 ],
                               ),
-                              const Row(
+                              Row(
                                 children: [
-                                  Icon(Icons.access_time),
-                                  Text('3:00'),
+                                  const Icon(Icons.access_time),
+                                  Text(formatTime(taskList[index].taskTime)),
                                 ],
                               ),
                             ]),

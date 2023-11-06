@@ -52,6 +52,7 @@ Future<bool?> asyncTasksHandler() async {
   //use sharedprefrence to check whether newdevice or not
   if (sharedPref.getBool(usedDevice) != null) {
     //do not show onboardScreen
+
     return false;
   }
 //to check at firestore, maybe app might

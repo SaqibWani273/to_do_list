@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,6 +26,7 @@ class NoInternetScreen extends StatefulWidget {
 }
 
 class _NoInternetScreenState extends State<NoInternetScreen> {
+  var retrying = false;
   @override
   Widget build(BuildContext context) {
     Future<InternetResult> checkIdAtFirestore() async {
@@ -96,13 +98,21 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
                       ),
                       TextButton(
                           onPressed: () {
-                            setState(() {});
+                            log('treerere');
+                            setState(() {
+                              retrying = !retrying;
+                            });
                           },
                           style: ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll<Color>(
                                 Colors.blue.withOpacity(0.4)),
                           ),
-                          child: const Text('Retry'))
+                          child: retrying
+                              ? SizedBox(
+                                  height: 15,
+                                  width: 15,
+                                  child: const CircularProgressIndicator())
+                              : const Text('Retry')),
                     ],
                   ),
                 );
