@@ -36,6 +36,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     if (tasksList != null) {
       state = tasksList;
       completeTasksList = state;
+      log('from local storage : ${state.map((e) => e.taskTime)}');
       return;
     }
     //=>tasksList is null at local db
@@ -180,6 +181,7 @@ Future<List<Task>?> tasksListFromLocal() async {
   final db = await sqflite.openDatabase(
     path.join(dbPath, 'todo.db'),
   );
+  // db.execute('DROP TABLE IF EXISTS Tasks_List');
 
   final tableExists = await db.query(
     'sqlite_master',
@@ -223,6 +225,7 @@ Future<void> addToLocalDb(Task newTask) async {
   //the query to create a table for storing tasks
   const createQuery = '''Create table IF NOT EXISTS Tasks_List(id  TEXT,
        taskName TEXT,
+       description TEXT,
       taskDate int,
       taskTime int,
        taskPriority TEXT,

@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:to_do_list/constants/theme/custom_theme.dart';
 import 'package:to_do_list/model/task.dart';
 import 'package:to_do_list/utility/update_task.dart';
+import 'package:to_do_list/view/widgets/category_&_priority.dart';
 import 'package:to_do_list/view_model/task_provider.dart';
 import 'package:another_flushbar/flushbar.dart';
 
@@ -29,11 +31,7 @@ class TasksList extends StatelessWidget {
           itemCount: taskList.length,
           itemBuilder: (context, index) => Card(
                 elevation: 0,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onBackground
-                    .withOpacity(0.15)
-                    .withBlue(150),
+                color: Theme.of(context).scaffoldBackgroundColor,
                 child: Dismissible(
                   confirmDismiss: (direction) => showDialog(
                     context: context,
@@ -85,76 +83,107 @@ class TasksList extends StatelessWidget {
                           .deleteTask(taskList[index], context);
                     }
                   },
-                  child: ListTile(
-                    //show icon conditionally if incomplete or if complete
-                    leading: GestureDetector(
-                      onTap: () => ref
-                          .read(taskProvider.notifier)
-                          .toggleIsCompleteStatus(taskList[index]),
-                      child: !taskList[index].isCompleted
-                          ? Icon(
-                              Icons.radio_button_unchecked,
-                              color: Colors.blue.withRed(200),
-                            )
-                          : const Icon(Icons.check_circle, color: Colors.green),
-                    ),
-                    title: Text(taskList[index].taskName),
-                    subtitle: Column(
-                      children: [
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Card(
+                        margin: EdgeInsets.all(10),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            '${taskList[index].taskName}',
+                            style: theme.textTheme.bodyLarge,
+                            maxLines: 1,
+                          ),
+                        ),
+                        elevation: 05,
+                        color: Theme.of(context)
+                            .scaffoldBackgroundColor
+                            .withBlue(200),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onBackground
+                              .withOpacity(0.15)
+                              .withBlue(150),
+                        ),
+                        child: ListTile(
+                          //show icon conditionally if incomplete or if complete
+                          leading: GestureDetector(
+                            onTap: () => ref
+                                .read(taskProvider.notifier)
+                                .toggleIsCompleteStatus(taskList[index]),
+                            child: !taskList[index].isCompleted
+                                ? Icon(
+                                    Icons.radio_button_unchecked,
+                                    color: Colors.blue.withRed(200),
+                                  )
+                                : const Icon(Icons.check_circle,
+                                    color: Colors.green),
+                          ),
+                          title: Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Text(taskList[index].description,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodyMedium),
+                          ),
+                          subtitle: Column(
                             children: [
                               Row(
-                                children: [
-                                  const Icon(Icons.calendar_today),
-                                  Text('${taskList[index].taskDate.toLocal()}'
-                                      .split(' ')[0]),
-                                ],
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                        '${dayAndMonth(taskList[index].taskDate)} ${formatTime(taskList[index].taskTime)}'),
+                                    CategoryWidget(
+                                        category: taskList[index].taskCategory),
+                                  ]),
+                              SizedBox(
+                                height: 10,
                               ),
                               Row(
+                                //    mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: [
-                                  const Icon(Icons.access_time),
-                                  Text(formatTime(taskList[index].taskTime)),
+                                  PriorityWidget(
+                                    priority: taskList[index].taskPriority,
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Expanded(
+                                      child: Text(timeLeft(
+                                          taskList[index].taskDate,
+                                          taskList[index].taskTime))),
                                 ],
                               ),
-                            ]),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.category),
-                                Text(' ${taskList[index].taskCategory.name}'),
-                              ],
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Row(
-                              children: [
-                                const Icon(Icons.low_priority),
-                                Text('${taskList[index].taskPriority.name}')
-                              ],
-                            )
-                          ],
+                            ],
+                          ),
+                          trailing: PopupMenuButton<TaskEnum>(
+                              onSelected: (value) => updateTask(
+                                  value: value,
+                                  ref: ref,
+                                  currentTask: taskList[index],
+                                  context: context),
+                              icon:
+                                  const Icon(Icons.arrow_forward_ios_outlined),
+                              itemBuilder: (context) =>
+                                  <PopupMenuEntry<TaskEnum>>[
+                                    ...popMenuItemList
+                                        .map((taskEnum) => PopupMenuItem(
+                                              child: Text('${taskEnum.name}'),
+                                              value: taskEnum,
+                                            ))
+                                        .toList(),
+                                  ]),
                         ),
-                      ],
-                    ),
-                    trailing: PopupMenuButton<TaskEnum>(
-                        onSelected: (value) => updateTask(
-                            value: value,
-                            ref: ref,
-                            currentTask: taskList[index],
-                            context: context),
-                        icon: const Icon(Icons.more_vert),
-                        itemBuilder: (context) => <PopupMenuEntry<TaskEnum>>[
-                              ...popMenuItemList
-                                  .map((taskEnum) => PopupMenuItem(
-                                        child: Text('${taskEnum.name}'),
-                                        value: taskEnum,
-                                      ))
-                                  .toList(),
-                            ]),
+                      ),
+                    ],
                   ),
                 ),
               )),

@@ -11,6 +11,7 @@ class Task {
   Category taskCategory;
   bool isCompleted;
   TimeOfDay taskTime;
+  String description;
 
   Task({
     required this.id,
@@ -20,6 +21,7 @@ class Task {
     required this.taskCategory,
     required this.isCompleted,
     required this.taskTime,
+    required this.description,
   });
 
   // Task copyWith({
@@ -50,8 +52,9 @@ class Task {
       'taskPriority': taskPriority.name,
       'taskCategory': taskCategory.name,
       'isCompleted': isCompleted ? 1 : 0,
-      'taskTime':
-          DateTime(taskTime.hour, taskTime.minute).millisecondsSinceEpoch
+      'taskTime': DateTime(2023, 11, 5, taskTime.hour, taskTime.minute)
+          .millisecondsSinceEpoch,
+      'description': description
     };
   }
 
@@ -64,7 +67,8 @@ class Task {
         taskCategory: categoryMap[map['taskCategory']]!,
         isCompleted: map['isCompleted'] == 0 ? false : true,
         taskTime: TimeOfDay.fromDateTime(
-            DateTime.fromMillisecondsSinceEpoch(map['taskDate'] as int)));
+            DateTime.fromMillisecondsSinceEpoch(map['taskTime'] as int)),
+        description: map['description']);
   }
 
   String toJson() => json.encode(toMap());

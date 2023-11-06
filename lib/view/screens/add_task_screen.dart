@@ -17,6 +17,8 @@ class AddTaskScreen extends StatefulWidget {
 class AddTaskScreenState extends State<AddTaskScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late TextEditingController _taskNameController;
+
+  late TextEditingController _descriptionController;
   DateTime _selectedDate = DateTime.now();
   Priority _selectedPriority = Priority.medium;
   Category _selectedCategory = Category.personal;
@@ -25,12 +27,15 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   @override
   void initState() {
     _taskNameController = TextEditingController();
+    _descriptionController = TextEditingController();
     if (widget.task != null) {
       _selectedDate = widget.task!.taskDate;
       _selectedCategory = widget.task!.taskCategory;
       _selectedPriority = widget.task!.taskPriority;
       _taskNameController.text = widget.task!.taskName;
       _selectedTime = widget.task!.taskTime;
+
+      _descriptionController.text = widget.task!.description;
     }
     super.initState();
   }
@@ -92,6 +97,17 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a task name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                      labelText: 'Short task description(2 line max)'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a task Description';
                     }
                     return null;
                   },
@@ -164,6 +180,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                         isCompleted: false,
                         id: taskId,
                         taskTime: _selectedTime,
+                        description: _descriptionController.text,
                       );
 
                       widget.onSave(newTask);
