@@ -35,14 +35,21 @@ String formatTime(TimeOfDay time) {
 
 String timeLeft(DateTime date, TimeOfDay time) {
   DateTime now = DateTime.now();
+
   Duration difference = date.difference(now);
+  //for past
+  if (date.day - now.day < 0) {
+    return '${date.day - now.day} days left';
+  }
+
+  //for today
   if (difference.inDays == 0) {
     if (time.hour - now.hour - 1 == 0) {
       return '${time.minute - now.minute + 60}min left';
     }
     return '${time.hour - now.hour - 1}h ${time.minute - now.minute + 60}min left';
   }
-
+//for future
   return '${difference.inDays} days left';
 }
 

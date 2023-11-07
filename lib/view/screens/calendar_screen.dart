@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:to_do_list/view/widgets/tasks_list.dart';
-import 'dart:developer';
 
+import '../../constants/other_constants.dart';
 import '../../model/task.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   final List<Task>? tasksList;
   const CalendarScreen({super.key, required this.tasksList});
   @override
-  _CalendarScreenState createState() => _CalendarScreenState();
+  CalendarScreenState createState() => CalendarScreenState();
 }
 
-class _CalendarScreenState extends ConsumerState<CalendarScreen> {
+class CalendarScreenState extends ConsumerState<CalendarScreen> {
   DateTime _focusedDay = DateTime.now();
 
-  final _lastDay = DateTime.now().add(Duration(days: 365));
-  final _firstDay = DateTime.now().subtract(Duration(days: 365));
+  final _lastDay = DateTime.now().add(const Duration(days: 365));
+  final _firstDay = DateTime.now().subtract(const Duration(days: 365));
 
   void showTasksForDay(DateTime selectedDay) {
     final tasks = widget.tasksList?.where((task) {
@@ -27,10 +25,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     //  log("tasks = ${tasks!.length}");
     showModalBottomSheet(
+      //add color to the bottom sheet
+      backgroundColor: Theme.of(context).primaryColorLight,
       context: context,
       builder: (context) {
         return tasks == null || tasks.isEmpty
-            ? Center(child: Text('No tasks for this day'))
+            ? const Center(child: Text('No tasks for this day'))
             : ListView.builder(
                 itemCount: tasks.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -50,19 +50,60 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             focusedDay: _focusedDay,
             firstDay: DateTime(_firstDay.year, _firstDay.month, 1),
             lastDay: DateTime(_lastDay.year, _lastDay.month, _lastDay.day),
+            //to change focus of the day
             selectedDayPredicate: (day) => isSameDay(_focusedDay, day),
+            headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                formatButtonShowsNext: false,
+                formatButtonDecoration: BoxDecoration(
+                  color: Theme.of(context).primaryColorDark,
+                )),
+            //to get the no.of events in a particular day
+            //it shows the dots only,thats y used calendarbuilders
+            eventLoader: (day) {
+              return widget.tasksList!
+                  .where((task) =>
+                      task.taskDate.day == day.day &&
+                      task.taskDate.month == day.month &&
+                      task.taskDate.year == day.year)
+                  .toList();
+            },
+            // Use `CalendarStyle` to customize the UI
+            calendarStyle: CalendarStyle(
+                markersAlignment: Alignment.bottomRight,
+                todayDecoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                )),
+            //to convert the no.of events in a particular day
+            //into a circle with the number
+            calendarBuilders:
+                CalendarBuilders(markerBuilder: (context, date, events) {
+              if (events.isNotEmpty) {
+                return Container(
+                  width: 15,
+                  height: 15,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      events.length.toString(),
+                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                    ),
+                  ),
+                );
+              }
+              return null;
+            }),
+
             onDaySelected: (selectedDay, focusedDay) {
               showTasksForDay(focusedDay);
 
-              log(" selectedDay = $selectedDay , focusedDay = $focusedDay");
               setState(() {
                 _focusedDay = selectedDay;
               });
-              // (DateTime date) {
-              //   setState(() {
-              //     _focusedDay = date;
-              //   });
-              // };
             },
           ),
         ],
@@ -79,18 +120,26 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(8.0),
+      margin: const EdgeInsets.all(8.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
       child: ListTile(
-        title: Text(task.taskName),
-        subtitle: Text(DateFormat('EEEE, MMMM d, yyyy').format(task.taskDate)),
+        title: Text("${task.taskName}  |  ${formatTime(task.taskTime)}"),
+        subtitle: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 05),
+          child: Text(task.description),
+        ),
+        trailing: task.isCompleted
+            ? Icon(
+                Icons.check_box,
+                color: Theme.of(context).primaryColorDark,
+              )
+            : Icon(
+                Icons.check_box_outline_blank,
+                color: Theme.of(context).disabledColor,
+              ),
       ),
     );
   }
 }
-
-// class Task {
-//   final String title;
-//   final DateTime date;
-
-//   Task({required this.title, required this.date});
-// }
