@@ -23,6 +23,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
   Priority _selectedPriority = Priority.medium;
   Category _selectedCategory = Category.personal;
   TimeOfDay _selectedTime = TimeOfDay.now();
+  String taskId = const Uuid().v4();
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class AddTaskScreenState extends State<AddTaskScreen> {
       _selectedTime = widget.task!.taskTime;
 
       _descriptionController.text = widget.task!.description;
+      taskId = widget.task!.id;
     }
     super.initState();
   }
@@ -171,7 +173,6 @@ class AddTaskScreenState extends State<AddTaskScreen> {
                   child: const Text('Save'),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      final taskId = const Uuid().v4();
                       final newTask = Task(
                         taskName: _taskNameController.text,
                         taskDate: _selectedDate,

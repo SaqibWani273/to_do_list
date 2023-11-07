@@ -9,6 +9,7 @@ import 'package:to_do_list/view_model/task_provider.dart';
 import 'package:another_flushbar/flushbar.dart';
 
 import '../../constants/other_constants.dart';
+import '../../utility/date_&_time_format.dart';
 
 class TasksList extends StatelessWidget {
   TasksList({
@@ -87,19 +88,19 @@ class TasksList extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Card(
-                        margin: EdgeInsets.all(10),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            '${taskList[index].taskName}',
-                            style: theme.textTheme.bodyLarge,
-                            maxLines: 1,
-                          ),
-                        ),
+                        margin: const EdgeInsets.all(10),
                         elevation: 05,
                         color: Theme.of(context)
                             .scaffoldBackgroundColor
                             .withBlue(200),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            taskList[index].taskName,
+                            style: theme.textTheme.bodyLarge,
+                            maxLines: 1,
+                          ),
+                        ),
                       ),
                       Container(
                         decoration: BoxDecoration(
@@ -142,7 +143,7 @@ class TasksList extends StatelessWidget {
                                     CategoryWidget(
                                         category: taskList[index].taskCategory),
                                   ]),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Row(
@@ -157,9 +158,21 @@ class TasksList extends StatelessWidget {
                                     width: 10,
                                   ),
                                   Expanded(
-                                      child: Text(timeLeft(
-                                          taskList[index].taskDate,
-                                          taskList[index].taskTime))),
+                                      child: Text(
+                                          timeLeft(taskList[index].taskDate,
+                                              taskList[index].taskTime),
+                                          style: timeLeft(
+                                                      taskList[index].taskDate,
+                                                      taskList[index]
+                                                          .taskTime) ==
+                                                  timeExpired
+                                              ? TextStyle(
+                                                  decoration: TextDecoration
+                                                      .lineThrough,
+                                                  color: Colors.red
+                                                      .withOpacity(0.8),
+                                                )
+                                              : null)),
                                 ],
                               ),
                             ],
@@ -176,8 +189,8 @@ class TasksList extends StatelessWidget {
                                   <PopupMenuEntry<TaskEnum>>[
                                     ...popMenuItemList
                                         .map((taskEnum) => PopupMenuItem(
-                                              child: Text('${taskEnum.name}'),
                                               value: taskEnum,
+                                              child: Text(taskEnum.name),
                                             ))
                                         .toList(),
                                   ]),

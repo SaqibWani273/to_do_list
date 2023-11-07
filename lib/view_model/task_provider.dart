@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:path/path.dart' as path;
 import 'package:to_do_list/constants/other_constants.dart';
+import 'package:to_do_list/utility/date_&_time_format.dart';
 
 import '../model/task.dart';
 
@@ -30,7 +31,8 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       log('error in getting tasks from local storage : ${err.toString()}');
     }
     if (tasksList != null) {
-      state = tasksList;
+      //tasksList.sort((a, b) => a.taskTime.hour.compareTo(b.taskTime.hour));
+      state = sortbyDateAndTime(tasksList);
       completeTasksList = state;
       return;
     }
@@ -47,7 +49,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     //user accordingly
     tasksList = await taskListFromFireStore();
     if (tasksList != null) {
-      state = tasksList;
+      state = sortbyDateAndTime(tasksList);
       completeTasksList = state;
     }
     //=>tasksList is null at firestore
@@ -83,7 +85,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     }
 
     try {
-      fireStoreRef
+      await fireStoreRef
           .doc(editedTask.id)
           .set(editedTask.toMap(), SetOptions(merge: true));
     } catch (e) {
@@ -206,7 +208,7 @@ Future<List<Task>?> taskListFromFireStore() async {
     try {
       task = Task.fromMap(e.data());
     } catch (e) {
-      log("error in task.fromMap = ${e.toString()}");
+      log("error in task.fromMap = ${e.toString()}, data = ${e.runtimeType}");
     }
     return task;
   }).toList();
@@ -263,18 +265,13 @@ Future<void> editFromLocalDb(Task editedTask) async {
   );
   //query to update data in sqflite database
 
-  await db.update(
+  final changes = await db.update(
     'Tasks_List',
-    {
-      'taskName': editedTask.taskName,
-      'taskDate': editedTask.taskDate.millisecondsSinceEpoch,
-      'taskPriority': editedTask.taskPriority.name,
-      'taskCategory': editedTask.taskCategory.name,
-      'isCompleted': editedTask.isCompleted ? 1 : 0,
-    },
+    editedTask.toMap(),
     where: 'id = ?',
     whereArgs: [editedTask.id],
   );
+  log('changes = $changes');
 }
 
 Future<void> toggleIsCompleteStatusFromLocalDb(Task task) async {

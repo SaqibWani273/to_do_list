@@ -21,7 +21,6 @@ Future<void> getLocalImage(File imageFile) async {
   //copy the image from the local directory
   final copiedImage = await imageFile.copy('${appDirectory.path}/$fileName');
   // copiedImage.
-  log('local imagefile= ${copiedImage.path}');
   addToLocalDataBase(copiedImage.path);
 }
 
@@ -45,6 +44,4 @@ addToLocalDataBase(String imagePath) async {
       'profilePicture': imagePath,
     },
   );
-  final dataInTable = await db.query('user_profile');
-  log('local database data= ${dataInTable.toString()}');
 }
