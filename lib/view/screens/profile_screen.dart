@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +7,7 @@ import 'package:to_do_list/view_model/user_provider.dart';
 import '../widgets/full_profile_pic.dart';
 import 'edit_profile_screen.dart';
 
+// ignore: must_be_immutable
 class ProfileScreen extends ConsumerWidget {
   ProfileScreen({
     Key? key,
@@ -37,7 +36,7 @@ class ProfileScreen extends ConsumerWidget {
           elevation: 0,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           foregroundColor: Colors.black,
-          title: Text('Profile'),
+          title: const Text('Profile'),
         ),
         body: FutureBuilder(
           future: getUser(),
@@ -52,7 +51,7 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 // Profile header with user's name, email, and profile picture
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   child: Row(
                     children: [
                       GestureDetector(
@@ -74,18 +73,18 @@ class ProfileScreen extends ConsumerWidget {
                                 ),
                         ),
                       ),
-                      SizedBox(width: 20),
+                      const SizedBox(width: 20),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             name,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 20, fontWeight: FontWeight.bold),
                           ),
                           Text(
                             email,
-                            style: TextStyle(fontSize: 16),
+                            style: const TextStyle(fontSize: 16),
                           ),
                         ],
                       ),
@@ -94,10 +93,10 @@ class ProfileScreen extends ConsumerWidget {
                 ),
 
                 // Edit profile section
-                Divider(),
+                const Divider(),
                 ListTile(
-                  title: Text('Edit Profile'),
-                  leading: Icon(Icons.edit),
+                  title: const Text('Edit Profile'),
+                  leading: const Icon(Icons.edit),
                   onTap: () {
                     Navigator.push(
                         context,
@@ -110,41 +109,41 @@ class ProfileScreen extends ConsumerWidget {
                 ),
 
                 // App settings section
-                Divider(),
+                const Divider(),
                 ListTile(
-                  title: Text('App Settings'),
-                  leading: Icon(Icons.settings),
+                  title: const Text('App Settings'),
+                  leading: const Icon(Icons.settings),
                   onTap: () {
                     // Navigate to app settings screen
                   },
                 ),
                 ListTile(
-                  title: Text('Change Password'),
-                  leading: Icon(Icons.lock),
+                  title: const Text('Change Password'),
+                  leading: const Icon(Icons.lock),
                   onTap: () {
                     // Open a dialog or navigate to a new screen to change user's password
                   },
                 ),
 
                 // Other common features
-                Divider(),
+                const Divider(),
                 ListTile(
-                  title: Text('Help & Support'),
-                  leading: Icon(Icons.help),
+                  title: const Text('Help & Support'),
+                  leading: const Icon(Icons.help),
                   onTap: () {
                     // Open help & support page or contact support
                   },
                 ),
                 ListTile(
-                  title: Text('About'),
-                  leading: Icon(Icons.info),
+                  title: const Text('About'),
+                  leading: const Icon(Icons.info),
                   onTap: () {
                     // Open about page with app information
                   },
                 ),
                 ListTile(
-                  title: Text('Logout'),
-                  leading: Icon(Icons.logout),
+                  title: const Text('Logout'),
+                  leading: const Icon(Icons.logout),
                   onTap: () async {
                     // Logout the user
                     await FirebaseAuth.instance.signOut();

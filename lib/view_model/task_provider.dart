@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,13 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path/path.dart' as path;
 import 'package:to_do_list/constants/other_constants.dart';
-import 'package:uuid/uuid.dart';
 
 import '../model/task.dart';
-import '../view/screens/add_task_screen.dart';
 
 List<Task> completeTasksList = [];
 final userId = FirebaseAuth.instance.currentUser!.uid;

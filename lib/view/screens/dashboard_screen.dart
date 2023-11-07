@@ -25,8 +25,8 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  final _pageController = PageController(initialPage: 1);
-  final _notchController = NotchBottomBarController(index: 1);
+  final _pageController = PageController(initialPage: 0);
+  final _notchController = NotchBottomBarController(index: 0);
   UserModel? userProfile;
   var loadingData = true;
   late List<Task>? tasksList;
@@ -76,7 +76,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return SafeArea(
       child: Scaffold(
-          appBar: CustomAppBar(
+          appBar: const CustomAppBar(
             height: 62,
             leadingWidth: 57,
             centerTitle: true,
@@ -84,9 +84,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           body: PageView(
             controller: _pageController,
             children: [
-              CalendarScreen(tasksList: tasksList),
               HomeScreen(tasksList: tasksList),
-              const FocusScreen()
+              CalendarScreen(tasksList: tasksList),
             ],
           ),
           extendBody:
@@ -112,29 +111,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ))
                 .toList(),
             onTap: (value) {
-              log('value = $value');
               _pageController.animateToPage(value,
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeIn);
             },
-          )
-          //  CustomBottomAppBar(
-          //   onChanged: (BottomBarEnum type) {},
-
-          ),
-    );
-  }
-}
-
-class FocusScreen extends StatelessWidget {
-  const FocusScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: const Center(
-        child: Text('Focus'),
-      ),
+          )),
     );
   }
 }

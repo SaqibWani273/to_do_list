@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:to_do_list/model/user_model.dart';
 import 'package:to_do_list/view/screens/profile_screen.dart';
 import 'package:to_do_list/view_model/user_provider.dart';
 import 'dart:ui' as ui;
@@ -8,13 +7,12 @@ import 'dart:ui' as ui;
 import '../../../constants/image_constants.dart';
 import '../../../constants/theme/custom_theme.dart';
 import '../custom_image_view.dart';
-import 'custom_menu_bar_widget.dart';
 import 'custom_menu_overlay.dart';
 
 // ignore: must_be_immutable
 class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
   //when using implements we assure that we'll implement all the methods of parent class
-  CustomAppBar({
+  const CustomAppBar({
     Key? key,
     this.height,
     this.leadingWidth,
@@ -44,7 +42,7 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
       leading: InkWell(
         onTap: () => showCustomMenu(context, ref),
         child: Padding(
-          padding: EdgeInsets.only(
+          padding: const EdgeInsets.only(
             left: 33,
             top: 16,
             bottom: 16,
@@ -81,12 +79,12 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 ));
           },
           child: Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 24,
               vertical: 7,
             ),
             child: userProfile == null
-                ? CircleAvatar(
+                ? const CircleAvatar(
                     radius: 25,
                     backgroundImage: AssetImage(ImageConstant.unkonwnUser),
                   )

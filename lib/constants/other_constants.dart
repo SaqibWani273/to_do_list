@@ -1,4 +1,4 @@
-import 'dart:developer';
+// ignore_for_file: constant_identifier_names
 
 import 'package:flutter/material.dart';
 
@@ -30,7 +30,7 @@ String formatTime(TimeOfDay time) {
     hr = time.hour - 12;
   }
 
-  return '${hr < 10 ? '0${hr}' : hr}:${time.minute < 10 ? '0${time.minute}' : time.minute}  ${time.hour > 12 ? 'PM' : 'AM'}';
+  return '${hr < 10 ? '0$hr' : hr}:${time.minute < 10 ? '0${time.minute}' : time.minute}  ${time.hour > 12 ? 'PM' : 'AM'}';
 }
 
 String timeLeft(DateTime date, TimeOfDay time) {
@@ -95,13 +95,13 @@ String dayAndMonth(DateTime date) {
   }
 }
 
-final personalColor = Colors.blue;
+const personalColor = Colors.blue;
 const workdColor = Colors.yellowAccent;
 const studyColor = Colors.green;
 const otherColor = Colors.grey;
 
 const lowPriorityColor = Colors.blue;
-final mediumPriorityColor = Colors.orange;
+const mediumPriorityColor = Colors.orange;
 const highPriorityColor = Colors.redAccent;
 Color getPriorityColor(Priority priority) {
   switch (priority) {
