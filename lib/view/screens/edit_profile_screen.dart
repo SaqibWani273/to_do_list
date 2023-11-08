@@ -27,9 +27,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     // TODO: implement initState
-    nameController.text = widget.user?.name ?? '';
-    emailController.text = widget.user?.email ?? '';
-    _profilePic = widget.user?.profilePictureUrl;
+    if (widget.user != null) {
+      nameController.text = widget.user!.name;
+      emailController.text = widget.user!.email;
+      _profilePic = widget.user!.profilePictureUrl;
+      imageFile = File(widget.user!.imagePath!);
+    }
+
     super.initState();
   }
 
@@ -91,8 +95,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             uploadingPic = true;
                           });
                           // _profilePic = await getImageUrl();
-                          // log(_profilePic.toString());
-                          imageFile = await getImageFileFromGallery();
+                          // // log(_profilePic.toString());
+                          // imageFile = await getImageFileFromGallery();
+                          await getImageData(onCompleted: (file, url) {
+                            imageFile = file;
+                            _profilePic = url;
+                          });
                           setState(() {
                             uploadingPic = false;
                           });
@@ -136,6 +144,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     } else {
                       if (_formKey.currentState!.validate()) {
                         final userModel = UserModel.fromMap({
+                          'id': FirebaseAuth.instance.currentUser!.uid,
                           'name': nameController.text,
                           'email': emailController.text,
                           'profilePictureUrl': _profilePic,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class FullProfilePic extends StatelessWidget {
-  final String url;
-  final bool isUser;
-  const FullProfilePic({super.key, required this.url, required this.isUser});
+  final String? url;
+
+  const FullProfilePic({
+    super.key,
+    required this.url,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,13 +17,13 @@ class FullProfilePic extends StatelessWidget {
       width: double.infinity,
       child: Hero(
         tag: 'profile',
-        child: isUser
+        child: url != null
             ? Image.network(
-                url,
+                url!,
                 fit: BoxFit.contain,
               )
             : Image.asset(
-                url,
+                'assets/images/unknown_user.png',
                 fit: BoxFit.contain,
               ),
       ),

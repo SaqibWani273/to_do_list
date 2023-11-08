@@ -1,11 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class UserModel {
+  final String id;
   final String name;
   final String phone;
   final String email;
   final String? profilePictureUrl;
   final String? imagePath;
+
   UserModel({
+    required this.id,
     required this.name,
     required this.phone,
     required this.email,
@@ -13,21 +16,22 @@ class UserModel {
     this.imagePath,
   });
 
-  UserModel copyWith({
-    String? name,
-    String? phone,
-    String? email,
-    String? profilePictureUrl,
-    String? imagePath,
-  }) {
-    return UserModel(
-      name: name ?? this.name,
-      phone: phone ?? this.phone,
-      email: email ?? this.email,
-      profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
-      imagePath: imagePath ?? this.imagePath,
-    );
-  }
+  // UserModel copyWith({
+  //   String? name,
+  //   String? phone,
+  //   String? email,
+  //   String? profilePictureUrl,
+  //   String? imagePath,
+  //   String? id,
+  // }) {
+  //   return UserModel(
+  //     name: name ?? this.name,
+  //     phone: phone ?? this.phone,
+  //     email: email ?? this.email,
+  //     profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
+  //     imagePath: imagePath ?? this.imagePath, id: '',
+  //   );
+  // }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -36,11 +40,13 @@ class UserModel {
       'email': email,
       'profilePictureUrl': profilePictureUrl,
       'imagePath': imagePath,
+      'id': id
     };
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
+      id: map['id'] as String,
       name: map['name'] as String,
       phone: map['phone'] as String,
       email: map['email'] as String,

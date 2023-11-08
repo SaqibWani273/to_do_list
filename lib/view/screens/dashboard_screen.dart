@@ -72,7 +72,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
       );
     }
-    userProfile = ref.watch(userProvider);
 
     return SafeArea(
       child: Scaffold(

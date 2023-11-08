@@ -19,6 +19,17 @@ final fireStoreRef = FirebaseFirestore.instance
     .doc(userId)
     .collection('tasks');
 
+Future<sqflite.Database?> openDb(String dbName) async {
+  //to get the appdirectory where the databases are stored
+
+  final dbPath = await sqflite.getDatabasesPath();
+  //here we open a specific database
+  final db = await sqflite.openDatabase(
+    path.join(dbPath, dbName),
+  );
+  return db;
+}
+
 class TaskNotifier extends StateNotifier<List<Task>> {
   TaskNotifier() : super(completeTasksList);
 
@@ -171,16 +182,9 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 //outside notifier class
 
 Future<List<Task>?> tasksListFromLocal() async {
-  //to get the appdirectory where the databases are stored
+  final db = await openDb('todo.db');
   List<Task>? tasksList;
-  final dbPath = await sqflite.getDatabasesPath();
-  //here we open a specific database
-  final db = await sqflite.openDatabase(
-    path.join(dbPath, 'todo.db'),
-  );
-  // db.execute('DROP TABLE IF EXISTS Tasks_List');
-
-  final tableExists = await db.query(
+  final tableExists = await db!.query(
     'sqlite_master',
     where: 'name = ?',
     whereArgs: ['Tasks_List'],
@@ -216,9 +220,6 @@ Future<List<Task>?> taskListFromFireStore() async {
 }
 
 Future<void> addToLocalDb(Task newTask) async {
-  //to get the appdirectory where the databases are stored
-  final dbPath = await sqflite.getDatabasesPath();
-
   //the query to create a table for storing tasks
   const createQuery = '''Create table IF NOT EXISTS Tasks_List(id  TEXT,
        taskName TEXT,
@@ -229,9 +230,8 @@ Future<void> addToLocalDb(Task newTask) async {
        taskCategory TEXT,
         isCompleted INTEGER)''';
 
-  //here we open a specific database
-  final db = await sqflite.openDatabase(path.join(dbPath, 'todo.db'));
-  db.execute(createQuery);
+  final db = await openDb('todo.db');
+  db!.execute(createQuery);
 
   //now insert the data into table
   await db.insert(
@@ -243,12 +243,8 @@ Future<void> addToLocalDb(Task newTask) async {
 }
 
 Future<void> deleteFromLocalDb(String id) async {
-  final dbPath = await sqflite.getDatabasesPath();
-  //here we open a specific database
-  final db = await sqflite.openDatabase(
-    path.join(dbPath, 'todo.db'),
-  );
-  await db.delete('Tasks_List', where: 'id = ?', whereArgs: [id]);
+  final db = await openDb('todo.db');
+  await db!.delete('Tasks_List', where: 'id = ?', whereArgs: [id]);
   final tableData = await db.query('Tasks_List');
   if (tableData.isEmpty) {
     // final sharedPref = await SharedPreferences.getInstance();
@@ -258,14 +254,9 @@ Future<void> deleteFromLocalDb(String id) async {
 }
 
 Future<void> editFromLocalDb(Task editedTask) async {
-  final dbPath = await sqflite.getDatabasesPath();
-  //here we open a specific database
-  final db = await sqflite.openDatabase(
-    path.join(dbPath, 'todo.db'),
-  );
-  //query to update data in sqflite database
+  final db = await openDb('todo.db');
 
-  final changes = await db.update(
+  final changes = await db!.update(
     'Tasks_List',
     editedTask.toMap(),
     where: 'id = ?',
@@ -275,14 +266,9 @@ Future<void> editFromLocalDb(Task editedTask) async {
 }
 
 Future<void> toggleIsCompleteStatusFromLocalDb(Task task) async {
-  final dbPath = await sqflite.getDatabasesPath();
-
-  //here we open a specific database
-  final db = await sqflite.openDatabase(
-    path.join(dbPath, 'todo.db'),
-  );
+  final db = await openDb('todo.db');
   //query to update data in sqflite database
-  await db.update(
+  await db!.update(
     'Tasks_List',
     {'isCompleted': task.isCompleted ? 0 : 1},
     where: 'id = ?',
@@ -294,17 +280,17 @@ Future<void> toggleIsCompleteStatusFromLocalDb(Task task) async {
 final taskProvider =
     StateNotifierProvider<TaskNotifier, List<Task>>((ref) => TaskNotifier());
 
-//
-class CustomMenuController extends StateNotifier<bool> {
-  CustomMenuController() : super(false);
+// //
+// class CustomMenuController extends StateNotifier<bool> {
+//   CustomMenuController() : super(false);
 
-  void toggleVisibility() {
-    print('called ');
-    state = !state;
-  }
-}
+//   void toggleVisibility() {
+//     print('called ');
+//     state = !state;
+//   }
+// }
 
-final customMenuControllerProvider =
-    StateNotifierProvider<CustomMenuController, bool>(
-  (ref) => CustomMenuController(),
-);
+// final customMenuControllerProvider =
+//     StateNotifierProvider<CustomMenuController, bool>(
+//   (ref) => CustomMenuController(),
+// );

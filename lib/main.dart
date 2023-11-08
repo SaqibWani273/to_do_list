@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list/constants/firebase_files/firebase_options.dart';
 
@@ -22,14 +23,16 @@ import 'view_model/auth_stream_handler.dart';
 Future<void> main() async {
   try {
     bool? showOnBoard = await asyncTasksHandler();
-    runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: theme,
-      home: showOnBoard == null
-          ? const NoInternetScreen()
-          : showOnBoard
-              ? const OnBoardScreen()
-              : const AuthStreamHandler(),
+    runApp(ProviderScope(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: theme,
+        home: showOnBoard == null
+            ? const NoInternetScreen()
+            : showOnBoard
+                ? const OnBoardScreen()
+                : const AuthStreamHandler(),
+      ),
     ));
   } catch (e) {
     log('error occurred in main : ${e.toString()}');
