@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,15 +22,6 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Future<void> getUser() async {
-    //   await ref.read(userProvider.notifier).setUserProfile();
-    //   //   user = ref.watch(userProvider);
-    //   name = user == null ? 'Guest' : user!.name;
-    //   email = user == null ? 'Guest' : user!.email;
-    //   profilePicture = user == null
-    //       ? 'assets/images/unknown_user.png'
-    //       : user!.profilePictureUrl!;
-    // }
     user = ref.watch(userProvider);
     return Scaffold(
         appBar: AppBar(
@@ -46,7 +40,7 @@ class ProfileScreen extends ConsumerWidget {
                   GestureDetector(
                     onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) =>
-                          FullProfilePic(url: user?.profilePictureUrl),
+                          FullProfilePic(imagePath: user?.imagePath),
                     )),
                     child: Hero(
                       tag: 'profile',
@@ -59,8 +53,9 @@ class ProfileScreen extends ConsumerWidget {
                           : CircleAvatar(
                               radius: 40,
                               backgroundImage:
-                                  NetworkImage(user!.profilePictureUrl!),
-                            ),
+                                  Image.file(File(user!.imagePath!)).image
+                              //  NetworkImage(user!.profilePictureUrl!),
+                              ),
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -145,20 +140,6 @@ class ProfileScreen extends ConsumerWidget {
               },
             ),
           ],
-        )
-
-        //  FutureBuilder(
-        //   future: getUser(),
-        //   builder: (context, snapshot) {
-        //     if (snapshot.connectionState == ConnectionState.waiting) {
-        //       return const Center(
-        //         child: CircularProgressIndicator(),
-        //       );
-        //     }
-        //     //   ref.watch(userProvider);
-        //     return
-        //   },
-        // ),
-        );
+        ));
   }
 }

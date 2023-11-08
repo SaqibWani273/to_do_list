@@ -5,7 +5,7 @@ class UserModel {
   final String phone;
   final String email;
   final String? profilePictureUrl;
-  final String? imagePath;
+  String? imagePath;
 
   UserModel({
     required this.id,

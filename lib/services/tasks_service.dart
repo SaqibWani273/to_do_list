@@ -43,8 +43,8 @@ Future<void> addToLocalDb(Task newTask) async {
     'Tasks_List',
     newTask.toMap(),
   );
-  final dataInTable = await db.query('Tasks_List');
-  log('local database data= ${dataInTable.toString()}');
+  // final dataInTable = await db.query('Tasks_List');
+  // log('local database data= ${dataInTable.toString()}');
 }
 
 Future<void> deleteAtLocalDb(String id) async {

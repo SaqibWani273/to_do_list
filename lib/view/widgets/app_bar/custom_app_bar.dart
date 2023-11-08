@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/view/screens/profile_screen.dart';
@@ -91,8 +93,9 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 : CircleAvatar(
                     radius: 40,
                     backgroundImage:
-                        NetworkImage(userProfile.profilePictureUrl!),
-                  ),
+                        Image.file(File(userProfile.imagePath!)).image
+                    // NetworkImage(userProfile.profilePictureUrl!),
+                    ),
           ),
         )
       ],

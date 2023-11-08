@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../constants/shared_ref_consts.dart';
 import '../model/user_model.dart';
@@ -17,16 +18,34 @@ class UserProvider extends StateNotifier<UserModel?> {
   Future<void> addUserProfile(UserModel userModel) async {
     try {
       await addUserToLocalDb(userModel);
+    } on DatabaseException catch (err) {
+      log('Db error while adding user profile to local db :$err');
     } catch (err) {
-      log('error in adding user profile to local db :err.toString()');
+      log('error in adding user profile to local db :${err.toString()}');
     }
 
     try {
-      await addUserToFirestore(userModel);
+      addUserToFirestore(userModel);
     } catch (err) {
-      log('error in adding user profile to firestore :err.toString()');
+      log('error in adding user profile to firestore :${err.toString()}');
     }
 
+    state = userModel;
+  }
+
+  Future<void> updateUserProfile(UserModel userModel) async {
+    try {
+      await updateUserAtLocalDb(userModel);
+    } on DatabaseException catch (err) {
+      log('Db error while updating user profile at local db :$err');
+    } catch (err) {
+      log('error in updating user profile at local db :${err.toString()}');
+    }
+    try {
+      updateUserAtFirestore(userModel);
+    } catch (err) {
+      log('error in updating user profile at firestore :${err.toString()}');
+    }
     state = userModel;
   }
 
@@ -42,7 +61,8 @@ class UserProvider extends StateNotifier<UserModel?> {
       //if true => user didnot add any profile info or has deleted account
       return;
     }
-
+    log('user uninstalled app or cleared app data');
+//gets executed only  when app is uninstalled or app data is cleared
     final snapshotData = await getUserFromFirestore();
 
     //check if user has profile info in the collection or not
@@ -50,7 +70,19 @@ class UserProvider extends StateNotifier<UserModel?> {
         snapshotData != null && snapshotData.containsKey('profilePictureUrl');
 
     if (isUserProfileCreated) {
-      state = UserModel.fromMap(snapshotData);
+//to do : store user data locally now
+
+      final userData = UserModel.fromMap(snapshotData);
+//Add new imagePath and keep rest as it is
+      try {
+        final newImagePath = await setNewPath(userData.imagePath!);
+        userData.imagePath = newImagePath;
+        await addUserToLocalDb(userData);
+      } catch (err) {
+        log('error in adding user profile data from firestore to local db : ${err.toString()}......');
+        return;
+      }
+      state = userData;
     } else {
       state = null;
     }

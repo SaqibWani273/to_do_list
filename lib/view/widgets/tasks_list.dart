@@ -10,6 +10,7 @@ import 'package:another_flushbar/flushbar.dart';
 
 import '../../constants/other_constants.dart';
 import '../../utility/date_&_time_format.dart';
+import '../../view_model/user_provider.dart';
 
 class TasksList extends StatelessWidget {
   TasksList({
@@ -27,6 +28,7 @@ class TasksList extends StatelessWidget {
       onRefresh: () async {
         //  await Future.delayed(Duration(seconds: 13));
         await ref.read(taskProvider.notifier).setTasksList();
+        await ref.read(userProvider.notifier).setUserProfile();
       },
       child: ListView.builder(
           itemCount: taskList.length,

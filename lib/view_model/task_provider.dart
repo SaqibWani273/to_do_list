@@ -36,9 +36,19 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     }
     //Code below will get executed only if user has recently uninstalled or
     //cleared app data
+    log('user uninstalled app or cleared app data');
 
     tasksList = await taskListFromFireStore();
     if (tasksList != null) {
+      //store these tasks in local db now
+      try {
+        for (Task task in tasksList) {
+          await addToLocalDb(task);
+        }
+      } catch (err) {
+        log('error in storing tasks from firestore to local db : ${err.toString()}');
+      }
+
       state = sortbyDateAndTime(tasksList);
       completeTasksList = state;
     }

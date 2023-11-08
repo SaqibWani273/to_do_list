@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class FullProfilePic extends StatelessWidget {
-  final String? url;
+  final imagePath;
 
   const FullProfilePic({
     super.key,
-    required this.url,
+    required this.imagePath,
   });
 
   @override
@@ -17,9 +19,9 @@ class FullProfilePic extends StatelessWidget {
       width: double.infinity,
       child: Hero(
         tag: 'profile',
-        child: url != null
-            ? Image.network(
-                url!,
+        child: imagePath != null
+            ? Image.file(
+                File(imagePath!),
                 fit: BoxFit.contain,
               )
             : Image.asset(

@@ -1,7 +1,11 @@
 // ignore: unused_import
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:to_do_list/model/user_model.dart';
 
 import '../constants/firestore_sqlite_consts.dart';
@@ -22,13 +26,14 @@ Future<UserModel?> getUserFromLocalDb(String userId) async {
   if (snapshot.isEmpty) {
     return null;
   }
+
   return UserModel.fromMap(snapshot.first);
 }
 
 Future<void> addUserToLocalDb(UserModel userModel) async {
   final db = await openDb('user.db');
   const createUserTableQuery = '''CREATE TABLE IF NOT EXISTS user(
-    id TEXT PRIMARY KEY,
+    id TEXT,
     name TEXT,
     email TEXT,
     profilePictureUrl TEXT,
@@ -40,6 +45,16 @@ Future<void> addUserToLocalDb(UserModel userModel) async {
   await db.insert('user', userModel.toMap());
 }
 
+Future<void> updateUserAtLocalDb(UserModel userModel) async {
+  final db = await openDb('user.db');
+  await db!.update(
+    'user',
+    userModel.toMap(),
+    where: 'id = ?',
+    whereArgs: [userModel.id],
+  );
+}
+
 //...................Firestore.........
 
 Future<void> addUserToFirestore(UserModel userModel) async {
@@ -48,7 +63,30 @@ Future<void> addUserToFirestore(UserModel userModel) async {
   await userProfileRef.set(userModel.toMap(), SetOptions(merge: true));
 }
 
+updateUserAtFirestore(UserModel userModel) async {
+  // await userProfileRef.set(userModel.toMap(), SetOptions(merge: true));
+  userProfileRef.update(userModel.toMap());
+}
+
 Future<Map<String, dynamic>?> getUserFromFirestore() async {
   final snapshot = await userProfileRef.get();
   return snapshot.data();
+}
+
+Future<String> setNewPath(String oldPath) async {
+  //get new local path
+  final appDirectory = await path_provider.getApplicationDocumentsDirectory();
+  //to get filename
+
+  final fileName = path.basename(oldPath);
+  //create new file
+  final newLocalImage = File('${appDirectory.path}/$fileName');
+
+//add file data from firebasestorage to local file
+  final storageRef = FirebaseStorage.instance.ref();
+  final destination = 'profilePics/$userId/$fileName';
+
+  await storageRef.child(destination).writeToFile(File(newLocalImage.path));
+
+  return newLocalImage.path;
 }

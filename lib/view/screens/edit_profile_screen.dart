@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:to_do_list/utility/get_image_data.dart';
@@ -85,8 +87,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 : CircleAvatar(
                                     backgroundColor: Colors.grey,
                                     foregroundColor: Colors.grey,
-                                    backgroundImage: NetworkImage(
-                                        widget.user!.profilePictureUrl!),
+                                    backgroundImage: Image.file(
+                                            File(widget.user!.imagePath!))
+                                        .image,
+                                    //  NetworkImage(
+                                    //     widget.user!.profilePictureUrl!),
                                     radius: 50.0,
                                   ),
                         onTap: () async {
@@ -94,13 +99,54 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           setState(() {
                             uploadingPic = true;
                           });
-                          // _profilePic = await getImageUrl();
-                          // // log(_profilePic.toString());
-                          // imageFile = await getImageFileFromGallery();
                           await getImageData(onCompleted: (file, url) {
                             imageFile = file;
                             _profilePic = url;
-                          });
+                          }).timeout(
+                            const Duration(minutes: 2),
+                            onTimeout: () {
+                              showCupertinoDialog(
+                                context: context,
+                                builder: (context) {
+                                  return CupertinoAlertDialog(
+                                    title: const Column(
+                                      children: <Widget>[
+                                        Icon(
+                                          CupertinoIcons.clear_circled_solid,
+                                          size: 50.0,
+                                          color: CupertinoColors.systemRed,
+                                        ),
+                                        SizedBox(height: 8.0),
+                                        Text(
+                                          'Timeout Error!',
+                                          style: TextStyle(
+                                            fontSize: 18.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Make sure to have an active internet connection',
+                                          style: TextStyle(fontSize: 14.0),
+                                        ),
+                                      ],
+                                    ),
+                                    actions: <Widget>[
+                                      CupertinoDialogAction(
+                                        child: Text('OK'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              setState(() {
+                                uploadingPic = false;
+                              });
+                            },
+                          );
                           setState(() {
                             uploadingPic = false;
                           });
@@ -136,7 +182,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ElevatedButton(
                   child: const Text('Update Profile'),
                   onPressed: () async {
-                    if (imageFile == null && _profilePic == null) {
+                    if (imageFile == null && _profilePic == null ||
+                        uploadingPic) {
                       //show snackbar to tell user to select profile pic
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('Please select a profile pic'),
@@ -150,11 +197,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           'profilePictureUrl': _profilePic,
                           'phone':
                               FirebaseAuth.instance.currentUser!.phoneNumber,
-                          'imagePath': imageFile?.path,
+                          'imagePath': imageFile!.path,
                         });
-                        await widget.ref
-                            .read(userProvider.notifier)
-                            .addUserProfile(userModel);
+                        if (widget.user == null) {
+                          //for new user
+                          await widget.ref
+                              .read(userProvider.notifier)
+                              .addUserProfile(userModel);
+                        } else {
+                          //to update existing user
+
+                          await widget.ref
+                              .read(userProvider.notifier)
+                              .updateUserProfile(userModel);
+                        }
+
                         if (context.mounted) {
                           Navigator.of(context).pop();
                         }
