@@ -13,11 +13,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list/constants/firebase_files/firebase_options.dart';
 
-import 'package:to_do_list/constants/other_constants.dart';
 import 'package:to_do_list/constants/theme/custom_theme.dart';
 import 'package:to_do_list/view/screens/no_internet_screen.dart';
 import 'package:to_do_list/view/screens/on_board_screen.dart';
 
+import 'constants/shared_ref_consts.dart';
 import 'view_model/auth_stream_handler.dart';
 
 Future<void> main() async {
@@ -89,7 +89,7 @@ Future<bool?> asyncTasksHandler() async {
     final doc = await ref.doc(uinqueDeviceId).get();
     if (!doc.exists) {
       //device using app for first time
-      sharedPref.setBool(userHasNoData, true);
+      sharedPref.setBool(userHasNoTasksData, true);
       await ref.doc(uinqueDeviceId).set({'id': uinqueDeviceId});
       //true for showing onboardscreen
       return true;

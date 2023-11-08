@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../model/task.dart';
 
-const String usedDevice = 'usedDevice';
-const String userHasNoData = 'userHasNoData';
-
 enum TaskEnum {
   Edit,
   Delelte,

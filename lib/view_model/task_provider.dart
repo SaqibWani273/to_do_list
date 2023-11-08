@@ -1,34 +1,17 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart' as sqflite;
-import 'package:path/path.dart' as path;
+
 import 'package:to_do_list/constants/other_constants.dart';
+import 'package:to_do_list/constants/shared_ref_consts.dart';
 import 'package:to_do_list/utility/date_&_time_format.dart';
 
 import '../model/task.dart';
+import '../services/tasks_service.dart';
 
 List<Task> completeTasksList = [];
-final userId = FirebaseAuth.instance.currentUser!.uid;
-final fireStoreRef = FirebaseFirestore.instance
-    .collection('users')
-    .doc(userId)
-    .collection('tasks');
-
-Future<sqflite.Database?> openDb(String dbName) async {
-  //to get the appdirectory where the databases are stored
-
-  final dbPath = await sqflite.getDatabasesPath();
-  //here we open a specific database
-  final db = await sqflite.openDatabase(
-    path.join(dbPath, dbName),
-  );
-  return db;
-}
 
 class TaskNotifier extends StateNotifier<List<Task>> {
   TaskNotifier() : super(completeTasksList);
@@ -42,22 +25,18 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       log('error in getting tasks from local storage : ${err.toString()}');
     }
     if (tasksList != null) {
-      //tasksList.sort((a, b) => a.taskTime.hour.compareTo(b.taskTime.hour));
       state = sortbyDateAndTime(tasksList);
       completeTasksList = state;
       return;
     }
     //=>tasksList is null at local db
-    final sharedPref = await SharedPreferences.getInstance();
-    if (sharedPref.getBool(userHasNoData) != null &&
-        sharedPref.getBool(userHasNoData) == true) {
-      //=> user has no data
+    if (await SharedRef().noTasksData) {
+      //if true => user didnot add any task yet or has deleted all
       return;
     }
     //Code below will get executed only if user has recently uninstalled or
     //cleared app data
-    //to do : check if there is internet connection then show message to
-    //user accordingly
+
     tasksList = await taskListFromFireStore();
     if (tasksList != null) {
       state = sortbyDateAndTime(tasksList);
@@ -75,11 +54,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
       log('Error in add new task to local db : ${e.toString()}');
       return;
     }
-    try {
-      //do not use await as it will wait for the task to be added to firestore
-      //before updating state and for that internet connection is required
-      fireStoreRef.doc(newTask.id).set(newTask.toMap());
-    } catch (e) {
+    try {} catch (e) {
       log('error in adding new task to firestore: ${e.toString()}');
       return;
     }
@@ -96,9 +71,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     }
 
     try {
-      await fireStoreRef
-          .doc(editedTask.id)
-          .set(editedTask.toMap(), SetOptions(merge: true));
+      editAtFirestore(editedTask);
     } catch (e) {
       log('error in editing task at firestore: ${e.toString()}');
       return;
@@ -111,14 +84,14 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
   Future<void> deleteTask(Task task, BuildContext context) async {
     try {
-      await deleteFromLocalDb(task.id);
+      await deleteAtLocalDb(task.id);
     } catch (e) {
       log('error in deleting from local db : ${e.toString()}');
       return;
     }
 
     try {
-      fireStoreRef.doc(task.id).delete();
+      deleteAtFireStore(task.id);
     } catch (e) {
       log('error in deleting from firestore : ${e.toString()}');
       return;
@@ -132,19 +105,21 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     //to update whether user has data or not
     final sharedPref = await SharedPreferences.getInstance();
     if (state.isEmpty) {
-      sharedPref.setBool(userHasNoData, true);
+      sharedPref.setBool(userHasNoTasksData, true);
     }
   }
 
   Future<void> toggleIsCompleteStatus(Task task) async {
     //update at local db
     try {
-      await toggleIsCompleteStatusFromLocalDb(task);
+      await toggleIsCompleteStatusAtLocalDb(task);
     } catch (e) {
       log("Error in updating local db : ${e.toString()}");
     }
     try {
-      fireStoreRef.doc(task.id).update({'isCompleted': !task.isCompleted});
+      //update at firestore
+      toggleIsCompleteStatusAtFireStore(task);
+      // fireStoreRef.doc(task.id).update({'isCompleted': !task.isCompleted});
     } catch (e) {
       log("Error in updating firestore : ${e.toString()}");
     }
@@ -154,6 +129,7 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     state = newState;
   }
 
+// ...  to list taks as per user choice in menu bar
   void listBy(enumName) {
     log('in listby, completelist = ${completeTasksList.toString()}');
 
@@ -181,116 +157,6 @@ class TaskNotifier extends StateNotifier<List<Task>> {
 
 //outside notifier class
 
-Future<List<Task>?> tasksListFromLocal() async {
-  final db = await openDb('todo.db');
-  List<Task>? tasksList;
-  final tableExists = await db!.query(
-    'sqlite_master',
-    where: 'name = ?',
-    whereArgs: ['Tasks_List'],
-  );
-
-  if (tableExists.isNotEmpty) {
-    final dataInTable = await db.query('Tasks_List');
-    tasksList = dataInTable.map((e) => Task.fromMap(e)).toList();
-    //to update device status
-    final sharedPref = await SharedPreferences.getInstance();
-    sharedPref.setBool(usedDevice, true);
-  }
-  return tasksList;
-}
-
-Future<List<Task>?> taskListFromFireStore() async {
-  final data = await fireStoreRef.get();
-  final List<QueryDocumentSnapshot<Map<String, dynamic>>> docsList = data.docs;
-
-  if (docsList.isEmpty) {
-    return null;
-  }
-  final tasksList = docsList.map((e) {
-    late Task task;
-    try {
-      task = Task.fromMap(e.data());
-    } catch (e) {
-      log("error in task.fromMap = ${e.toString()}, data = ${e.runtimeType}");
-    }
-    return task;
-  }).toList();
-  return tasksList;
-}
-
-Future<void> addToLocalDb(Task newTask) async {
-  //the query to create a table for storing tasks
-  const createQuery = '''Create table IF NOT EXISTS Tasks_List(id  TEXT,
-       taskName TEXT,
-       description TEXT,
-      taskDate int,
-      taskTime int,
-       taskPriority TEXT,
-       taskCategory TEXT,
-        isCompleted INTEGER)''';
-
-  final db = await openDb('todo.db');
-  db!.execute(createQuery);
-
-  //now insert the data into table
-  await db.insert(
-    'Tasks_List',
-    newTask.toMap(),
-  );
-  final dataInTable = await db.query('Tasks_List');
-  log('local database data= ${dataInTable.toString()}');
-}
-
-Future<void> deleteFromLocalDb(String id) async {
-  final db = await openDb('todo.db');
-  await db!.delete('Tasks_List', where: 'id = ?', whereArgs: [id]);
-  final tableData = await db.query('Tasks_List');
-  if (tableData.isEmpty) {
-    // final sharedPref = await SharedPreferences.getInstance();
-    // sharedPref.setBool(userHasNoData, true);
-    log('empty in local db');
-  }
-}
-
-Future<void> editFromLocalDb(Task editedTask) async {
-  final db = await openDb('todo.db');
-
-  final changes = await db!.update(
-    'Tasks_List',
-    editedTask.toMap(),
-    where: 'id = ?',
-    whereArgs: [editedTask.id],
-  );
-  log('changes = $changes');
-}
-
-Future<void> toggleIsCompleteStatusFromLocalDb(Task task) async {
-  final db = await openDb('todo.db');
-  //query to update data in sqflite database
-  await db!.update(
-    'Tasks_List',
-    {'isCompleted': task.isCompleted ? 0 : 1},
-    where: 'id = ?',
-    whereArgs: [task.id],
-  );
-}
-
 //notifier
 final taskProvider =
     StateNotifierProvider<TaskNotifier, List<Task>>((ref) => TaskNotifier());
-
-// //
-// class CustomMenuController extends StateNotifier<bool> {
-//   CustomMenuController() : super(false);
-
-//   void toggleVisibility() {
-//     print('called ');
-//     state = !state;
-//   }
-// }
-
-// final customMenuControllerProvider =
-//     StateNotifierProvider<CustomMenuController, bool>(
-//   (ref) => CustomMenuController(),
-// );

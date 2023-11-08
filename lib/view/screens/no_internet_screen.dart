@@ -6,11 +6,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:to_do_list/constants/shared_ref_consts.dart';
 import 'package:to_do_list/view/screens/on_board_screen.dart';
 import 'package:to_do_list/view_model/auth_stream_handler.dart';
-
-import '../../constants/other_constants.dart';
 
 enum InternetResult {
   noInternet,
@@ -57,8 +55,7 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
         final doc = await ref.doc(uinqueDeviceId).get();
         if (!doc.exists) {
           //device using app for first time
-          final sharedPref = await SharedPreferences.getInstance();
-          sharedPref.setBool(userHasNoData, true);
+          SharedRef().setNoTasksData();
           await ref.doc(uinqueDeviceId).set({'id': uinqueDeviceId});
           //for showing onboardscreen
           return InternetResult.newUSer;
@@ -98,10 +95,20 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
                       ),
                       TextButton(
                           onPressed: () {
-                            log('treerere');
+                            //  log('treerere');
                             setState(() {
                               retrying = !retrying;
                             });
+                            Future.delayed(
+                              const Duration(seconds: 10),
+                              () {
+                                if (mounted) {
+                                  setState(() {
+                                    retrying = !retrying;
+                                  });
+                                }
+                              },
+                            );
                           },
                           style: ButtonStyle(
                             backgroundColor: MaterialStatePropertyAll<Color>(

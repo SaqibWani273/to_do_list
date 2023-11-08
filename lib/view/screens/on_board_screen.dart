@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list/constants/on_board_screen_constant.dart';
-import 'package:to_do_list/constants/other_constants.dart';
+import 'package:to_do_list/constants/shared_ref_consts.dart';
 import 'package:to_do_list/view/widgets/on_board_widget.dart';
 
 class OnBoardScreen extends StatefulWidget {
@@ -16,10 +15,6 @@ class OnBoardScreen extends StatefulWidget {
 
 class _OnBoardScreenState extends State<OnBoardScreen> {
   final _pageController = PageController(initialPage: 0);
-  Future<void> setData() async {
-    final sharedPref = await SharedPreferences.getInstance();
-    sharedPref.setBool(usedDevice, true);
-  }
 
   @override
   void dispose() {
@@ -30,7 +25,8 @@ class _OnBoardScreenState extends State<OnBoardScreen> {
   @override
   Widget build(BuildContext context) {
     final mediaQueryData = MediaQuery.of(context);
-    setData();
+
+    SharedRef().recognizeDevice();
 
     return SafeArea(
         child: Scaffold(

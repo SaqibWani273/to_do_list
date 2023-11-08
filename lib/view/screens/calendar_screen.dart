@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../../constants/other_constants.dart';
 import '../../model/task.dart';
 import '../../utility/date_&_time_format.dart';
 

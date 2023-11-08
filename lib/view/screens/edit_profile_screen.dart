@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:to_do_list/utility/get_image_url.dart';
+import 'package:to_do_list/utility/get_image_data.dart';
 import 'package:to_do_list/view_model/user_provider.dart';
 
 import '../../model/user_model.dart';
