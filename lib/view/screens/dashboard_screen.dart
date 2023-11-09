@@ -31,34 +31,105 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   var loadingData = true;
   late List<Task>? tasksList;
 
-  @override
-  void initState() {
-    super.initState();
-    //to load all kinds of user related data
-    loadUserData();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   //to load all kinds of user related data
+  //   WidgetsBinding.instance.addPostFrameCallback(
+  //     (timeStamp) => loadUserData(),
+  //   );
+  //   // loadUserData();
+  // }
 
+  // Future<void> loadUserData() async {
+  //   if (mounted) {
+  //     await ref.read(taskProvider.notifier).setTasksList();
+  //     await ref.read(userProvider.notifier).setUserProfile();
+  //     tasksList = ref.read(taskProvider);
+  //     //to stop showing shimmer effect in ui
+  //     setState(() {
+  //       loadingData = false;
+  //     });
+  //   }
+  // }
   Future<void> loadUserData() async {
     await ref.read(taskProvider.notifier).setTasksList();
     await ref.read(userProvider.notifier).setUserProfile();
     tasksList = ref.read(taskProvider);
-    //to stop showing shimmer effect in ui
-    setState(() {
-      loadingData = false;
-    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     _notchController.dispose();
-    // connectivityStream.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    //final mediaQueryData = MediaQuery.of(context);
+    return FutureBuilder(
+      future: loadUserData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          tasksList = ref.watch(taskProvider);
+          return SafeArea(
+            child: Scaffold(
+                appBar: const CustomAppBar(
+                  height: 62,
+                  leadingWidth: 57,
+                  centerTitle: true,
+                ),
+                body: PageView(
+                  controller: _pageController,
+                  children: [
+                    HomeScreen(tasksList: tasksList),
+                    CalendarScreen(tasksList: tasksList),
+                  ],
+                ),
+                extendBody:
+                    true, //This property is often useful when the [bottomNavigationBar]
+                //has a non-rectangular shape, like [CircularNotchedRectangle],
+                bottomNavigationBar: AnimatedNotchBottomBar(
+                  durationInMilliSeconds: 400,
+                  notchBottomBarController: _notchController,
+                  bottomBarWidth: 300,
+                  removeMargins: true,
+                  showLabel: true,
+                  bottomBarItems: bottomBarList
+                      .map((item) => BottomBarItem(
+                            inActiveItem: Icon(
+                              item.notActiveIcon,
+                              color: Theme.of(context).colorScheme.onBackground,
+                            ),
+                            activeItem: Icon(
+                              item.activeIcon,
+                              color: Theme.of(context).primaryColorDark,
+                            ),
+                            itemLabel: item.label,
+                          ))
+                      .toList(),
+                  onTap: (value) {
+                    _pageController.animateToPage(value,
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeIn);
+                  },
+                )),
+          );
+        }
+        return Scaffold(
+          body: Shimmer.fromColors(
+            baseColor:
+                Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
+            highlightColor: Theme.of(context).scaffoldBackgroundColor,
+            child: ListView.builder(
+              itemCount: 5,
+              itemBuilder: (context, index) => const PlaceHolderWidget(),
+            ),
+          ),
+        );
+      },
+    );
+
     tasksList = ref.watch(taskProvider);
     if (loadingData) {
       return Scaffold(

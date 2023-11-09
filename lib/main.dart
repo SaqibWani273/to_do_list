@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,6 +46,29 @@ Future<bool?> asyncTasksHandler() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+//............................FCM...............
+  final notificationSetting =
+      await FirebaseMessaging.instance.requestPermission(provisional: true);
+  // if (notificationSetting.authorizationStatus !=
+  //     AuthorizationStatus.authorized) {
+  //   return null;
+  // }
+  log('is notification enabled ? : ${notificationSetting.authorizationStatus}');
+  final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+  log('apns token : $apnsToken');
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+
+  log('fcm token : $fcmToken');
+
+  FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+    // TODO: If necessary send token to application server.
+
+    // Note: This callback is fired at each app startup and whenever a new
+    // token is generated.
+  }).onError((err) {
+    log('err getting refreshToken : ${err}');
+  });
+//.................................FCM.........................
 
 //to change top status bar theme settings
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(

@@ -52,7 +52,7 @@ Future<String?> verifyOtp({
 
     return null;
   } on FirebaseAuthException catch (e) {
-    // AuthExceptionMapper.map(e.code);
+    //  AuthExceptionMapper.map(e.code);
     return e.code;
   } catch (e) {
     return 'unknown error occured !';
