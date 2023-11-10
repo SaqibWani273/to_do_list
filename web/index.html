@@ -128,7 +128,10 @@
   
   
   <script>
-    window.addEventListener('load', function(ev) {
+    if("serviceWorker" in navigator) {
+      
+
+      window.addEventListener('load', function(ev) {
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
@@ -140,7 +143,13 @@
           });
         }
       });
+      navigator.serviceWorker.register("/firebase-messaging-sw.js");
+
     });
+
+
+    }
+
   </script>
 
 

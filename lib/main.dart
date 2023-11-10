@@ -46,14 +46,50 @@ Future<bool?> asyncTasksHandler() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-//............................FCM...............
-  final notificationSetting =
-      await FirebaseMessaging.instance.requestPermission(provisional: true);
+/*............................FCM...............
+.
+.
+.
+*/
+
+//https://firebase.flutter.dev/docs/messaging/usage
+
+//android doesnot need to ask for permissaion
+//more details about permissions in below link
+  // https://firebase.flutter.dev/docs/messaging/permissions/
+
+  final fcm = FirebaseMessaging.instance;
+  final notificationSetting = await fcm.requestPermission(
+    provisional: true,
+    sound: true,
+    alert: true,
+    announcement: true,
+    badge: true,
+    carPlay: true,
+    criticalAlert: true,
+  );
+
   // if (notificationSetting.authorizationStatus !=
   //     AuthorizationStatus.authorized) {
   //   return null;
   // }
-  log('is notification enabled ? : ${notificationSetting.authorizationStatus}');
+  log('notification status : ${notificationSetting.authorizationStatus}');
+  if (notificationSetting.authorizationStatus !=
+      AuthorizationStatus.authorized) {
+    log('user denied permission for notification');
+    return null;
+  }
+//check if current platform is web
+  if (kIsWeb) {
+    log('web platform ');
+//token will be used to send the messages to the user from custom server
+    final webToken = fcm.getToken(
+        vapidKey:
+            'BGK0duEV9Lys-zsaGGnOZhUwL5040Cw51n06GRGmV7hglNPh5f4dIqDFDkx2023');
+
+    log('web token : $webToken');
+  }
+
   final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
   log('apns token : $apnsToken');
   final fcmToken = await FirebaseMessaging.instance.getToken();
@@ -68,7 +104,34 @@ Future<bool?> asyncTasksHandler() async {
   }).onError((err) {
     log('err getting refreshToken : ${err}');
   });
-//.................................FCM.........................
+  //for foreground
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    log('Got a message whilst in the foreground!');
+    log('Message data: ${message.data}');
+
+    if (message.notification != null) {
+      log('Message also contained a notification: ${message.notification}');
+    }
+  });
+//for background
+
+  FirebaseMessaging.onBackgroundMessage((message) async {
+    // for using other Firebase services in the background, such as Firestore,
+    // make sure you call `initializeApp` before using other Firebase services.
+    await Firebase.initializeApp();
+// If tasks run for longer than 30 seconds, the device may automatically kill the process.
+//
+//
+    log("Handling a background message: ${message.messageId}");
+  });
+
+/*
+.
+.
+.
+.................................FCM.........................
+
+*/
 
 //to change top status bar theme settings
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
