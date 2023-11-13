@@ -50,7 +50,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       future: loadUserData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          tasksList = ref.watch(taskProvider);
+          //   tasksList = ref.watch(taskProvider);
           return SafeArea(
             child: Scaffold(
                 appBar: const CustomAppBar(

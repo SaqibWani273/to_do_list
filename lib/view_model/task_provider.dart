@@ -10,6 +10,7 @@ import 'package:to_do_list/utility/date_&_time_format.dart';
 
 import '../model/task.dart';
 import '../services/tasks_service.dart';
+import '../utility/notification_service.dart';
 
 List<Task> completeTasksList = [];
 
@@ -70,6 +71,23 @@ class TaskNotifier extends StateNotifier<List<Task>> {
     }
     //update state at the end
     state = newstate;
+
+//to schedule notification
+    final scheduledTime = DateTime(
+        newTask.taskDate.year,
+        newTask.taskDate.month,
+        newTask.taskDate.day,
+        newTask.taskTime.hour,
+        newTask.taskTime.minute);
+
+    try {
+      await NotificationService().scheduleNotification(
+          title: '${newTask.taskName}',
+          body: '${newTask.description}',
+          scheduledNotificationDateTime: scheduledTime);
+    } catch (e) {
+      log("Error in sending local_notification at scheduled time : $e");
+    }
   }
 
   Future<void> editTask(Task task, Task editedTask) async {

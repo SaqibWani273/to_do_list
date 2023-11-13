@@ -1,5 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:to_do_list/utility/notification_service.dart';
 
 import '../../constants/image_constants.dart';
 import '../../model/task.dart';
@@ -101,7 +106,7 @@ class customFloatingButton extends StatelessWidget {
             Icons.add,
             size: 30,
           ),
-          onPressed: () {
+          onPressed: () async {
             Navigator.push(
                 context,
                 MaterialPageRoute(

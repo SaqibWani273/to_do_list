@@ -15,52 +15,57 @@ class AuthStreamHandler extends StatelessWidget {
       stream: FirebaseAuth.instance.userChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          Widget currentScreen;
-          if (snapshot.hasData) {
-            currentScreen = const DashboardScreen();
-          } else {
-            currentScreen = const AuthScreen();
-          }
+          // Widget currentScreen;
+          // if (snapshot.hasData) {
+          //   currentScreen = const DashboardScreen();
+          // } else {
+          //   currentScreen = const AuthScreen();
+          // }
 
-          log('waiting... => loading screen');
-          return Stack(
-            children: [
-              currentScreen,
-              const LoadingOverlay(),
-            ],
-          );
-
-          // const Scaffold(
-          //   body: Center(child: CircularProgressIndicator.adaptive()),
+          // log('waiting... => loading screen');
+          // return Stack(
+          //   children: [
+          //     currentScreen,
+          //     const LoadingOverlay(),
+          //   ],
           // );
-        }
-        Widget nextScreen;
-        if (snapshot.hasData) {
-          nextScreen = const DashboardScreen();
-        } else {
-          nextScreen = const AuthScreen();
-        }
-        return FutureBuilder(
-          future: Future.delayed(
-            const Duration(seconds: 1),
-          ),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return nextScreen;
-            } else {
-              return Stack(
-                children: [
-                  nextScreen,
-                  const LoadingOverlay(),
-                ],
-              );
 
-              // const Scaffold(
-              //   body: Center(child: CircularProgressIndicator.adaptive()),
-              // );
-            }
-          },
-        );
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator.adaptive()),
+          );
+        }
+        if (snapshot.hasData) {
+          return const DashboardScreen();
+        }
+
+        return const AuthScreen();
+        // Widget nextScreen;
+        // if (snapshot.hasData) {
+        //   nextScreen = const DashboardScreen();
+        // } else {
+        //   nextScreen = const AuthScreen();
+        // }
+        // return FutureBuilder(
+        //   future: Future.delayed(
+        //     const Duration(seconds: 1),
+        //   ),
+        //   builder: (context, snapshot) {
+        //     if (snapshot.connectionState == ConnectionState.done) {
+        //       return nextScreen;
+        //     } else {
+        //       return Stack(
+        //         children: [
+        //           nextScreen,
+        //           const LoadingOverlay(),
+        //         ],
+        //       );
+
+        //       // const Scaffold(
+        //       //   body: Center(child: CircularProgressIndicator.adaptive()),
+        //       // );
+        //     }
+        //   },
+        // );
       },
     );
   }
