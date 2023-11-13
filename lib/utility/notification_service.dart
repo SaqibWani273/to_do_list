@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -38,6 +39,7 @@ class NotificationService {
           '123456789qwermn', //channel id
           'chan222nelName9812', //channel name
           importance: Importance.max,
+          priority: Priority.high,
         ),
         iOS: DarwinNotificationDetails());
   }
@@ -64,27 +66,40 @@ class NotificationService {
       String? body,
       String? payLoad,
       required DateTime scheduledNotificationDateTime}) async {
-    log('dateTimeReceived=$scheduledNotificationDateTime');
-    log('dateTime =${DateTime.now().add(const Duration(seconds: 20))}');
-    final dateTime = DateTime.now().add(Duration(seconds: 120));
-    await AndroidFlutterLocalNotificationsPlugin()
-        .requestExactAlarmsPermission();
-    await FlutterLocalNotificationsPlugin()
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()!
-        .requestNotificationsPermission();
+    // await AndroidFlutterLocalNotificationsPlugin()
+    //     .requestExactAlarmsPermission();
+    // await FlutterLocalNotificationsPlugin()
+    //     .resolvePlatformSpecificImplementation<
+    //         AndroidFlutterLocalNotificationsPlugin>()!
+    //     .requestNotificationsPermission();
     tz.initializeTimeZones();
+    final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
 
     await notificationsPlugin.zonedSchedule(
         id,
         title,
         body,
         tz.TZDateTime.from(scheduledNotificationDateTime, tz.local),
-        //  tz.TZDateTime.now(tz.local).add(const Duration(seconds: 100),),
+        // tz.TZDateTime.now(tz.local).add(
+        //   const Duration(seconds: 60),
+        // ),
         // TZDateTime.from(scheduledNotificationDateTime, local),
-        await notificationDetails(),
+        notificationDetails(),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime);
+    await checkPendingNotificationRequests();
+  }
+
+  Future<void> checkPendingNotificationRequests() async {
+    log('checkPendingNotificationRequests called');
+    final pendingNotificationRequests =
+        await notificationsPlugin.pendingNotificationRequests();
+    for (final pendingNotificationRequest in pendingNotificationRequests) {
+      log(
+        'pendingNotificationRequest : id= ${pendingNotificationRequest.id}, titile= ${pendingNotificationRequest.title}, body= ${pendingNotificationRequest.body}, payload= ${pendingNotificationRequest.payload}..............,',
+      );
+    }
   }
 }

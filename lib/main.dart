@@ -44,6 +44,9 @@ Future<void> main() async {
 
 Future<bool?> asyncTasksHandler() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  await NotificationService().initNotification();
+  await NotificationService().checkPendingNotificationRequests();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 //to change top status bar theme settings
@@ -58,8 +61,6 @@ Future<bool?> asyncTasksHandler() async {
 
     return false;
   }
-
-  await NotificationService().initNotification();
 
 //to check at firestore, maybe app might
 //have been used before on this device ,
