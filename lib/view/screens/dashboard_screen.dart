@@ -100,10 +100,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             baseColor:
                 Theme.of(context).colorScheme.onBackground.withOpacity(0.05),
             highlightColor: Theme.of(context).scaffoldBackgroundColor,
-            child: ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) => const PlaceHolderWidget(),
-            ),
+            child: const PlaceHolderWidget(),
           ),
         );
       },

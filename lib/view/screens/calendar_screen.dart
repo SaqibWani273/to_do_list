@@ -4,6 +4,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../../model/task.dart';
 import '../../utility/date_&_time_format.dart';
+import '../../view_model/task_provider.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   final List<Task>? tasksList;
@@ -14,12 +15,19 @@ class CalendarScreen extends ConsumerStatefulWidget {
 
 class CalendarScreenState extends ConsumerState<CalendarScreen> {
   DateTime _focusedDay = DateTime.now();
+  late List<Task> tasksList;
+
+  @override
+  void initState() {
+    tasksList = widget.tasksList!;
+    super.initState();
+  }
 
   final _lastDay = DateTime.now().add(const Duration(days: 365));
   final _firstDay = DateTime.now().subtract(const Duration(days: 365));
 
   void showTasksForDay(DateTime selectedDay) {
-    final tasks = widget.tasksList?.where((task) {
+    final tasks = tasksList.where((task) {
       return task.taskDate.day == selectedDay.day;
     }).toList();
 
@@ -29,7 +37,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
       backgroundColor: Theme.of(context).primaryColorLight,
       context: context,
       builder: (context) {
-        return tasks == null || tasks.isEmpty
+        return tasks.isEmpty
             ? const Center(child: Text('No tasks for this day'))
             : ListView.builder(
                 itemCount: tasks.length,
@@ -43,6 +51,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    tasksList = ref.watch(taskProvider);
     return Scaffold(
       body: Column(
         children: [
@@ -62,7 +71,7 @@ class CalendarScreenState extends ConsumerState<CalendarScreen> {
             //to get the no.of events in a particular day
             //it shows the dots only,thats y used calendarbuilders
             eventLoader: (day) {
-              return widget.tasksList!
+              return tasksList
                   .where((task) =>
                       task.taskDate.day == day.day &&
                       task.taskDate.month == day.month &&

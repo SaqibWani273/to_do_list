@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:to_do_list/constants/shared_ref_consts.dart';
 import 'package:to_do_list/model/user_model.dart';
 import 'package:to_do_list/view_model/user_provider.dart';
 
@@ -95,39 +96,6 @@ class ProfileScreen extends ConsumerWidget {
               },
             ),
 
-            // App settings section
-            const Divider(),
-            ListTile(
-              title: const Text('App Settings'),
-              leading: const Icon(Icons.settings),
-              onTap: () {
-                // Navigate to app settings screen
-              },
-            ),
-            ListTile(
-              title: const Text('Change Password'),
-              leading: const Icon(Icons.lock),
-              onTap: () {
-                // Open a dialog or navigate to a new screen to change user's password
-              },
-            ),
-
-            // Other common features
-            const Divider(),
-            ListTile(
-              title: const Text('Help & Support'),
-              leading: const Icon(Icons.help),
-              onTap: () {
-                // Open help & support page or contact support
-              },
-            ),
-            ListTile(
-              title: const Text('About'),
-              leading: const Icon(Icons.info),
-              onTap: () {
-                // Open about page with app information
-              },
-            ),
             ListTile(
               title: const Text('Logout'),
               leading: const Icon(Icons.logout),
@@ -139,6 +107,22 @@ class ProfileScreen extends ConsumerWidget {
                 }
               },
             ),
+            if (ref.read(userProvider) != null)
+              ListTile(
+                title: const Text('Delete Profile'),
+                leading: const Icon(Icons.delete_forever),
+                onTap: () async {
+                  // Logout the user
+                  await ref.read(userProvider.notifier).deleteUserProfile();
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Profile Deleted'),
+                    ));
+                    Navigator.pop(context);
+                  }
+                },
+              ),
           ],
         ));
   }

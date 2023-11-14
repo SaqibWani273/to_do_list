@@ -88,7 +88,22 @@ class UserProvider extends StateNotifier<UserModel?> {
     }
   }
   //at the time of adding delete user
-  //to do: update userHasProfile to true in sharedPref
+  //to do: update userHasNoProfile to true in sharedPref
+
+  Future<void> deleteUserProfile() async {
+    SharedRef().setNoProfileData();
+    try {
+      await deleteUserAtLocalDb();
+    } catch (err) {
+      log('error in deleting user profile at local db :$err');
+    }
+
+    try {
+      await deleteUserAtFirestore(state!);
+    } catch (err) {
+      log('error in deleting user profile at firestore :$err');
+    }
+  }
 }
 
 final userProvider = StateNotifierProvider<UserProvider, UserModel?>((ref) {
